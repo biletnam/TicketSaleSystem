@@ -61,6 +61,7 @@ public class HibernateConfig {
     Properties hibernateProperties() {
         return new Properties() {
             {
+                setProperty("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto"));
                 setProperty("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect"));
                 setProperty("hibernate.globally_quoted_identifiers", "true");
             }

@@ -1,33 +1,40 @@
 package ru.tersoft.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.entity.Account;
 import ru.tersoft.repository.AccountRepository;
+import ru.tersoft.service.AccountService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service("AccountService")
 @Transactional
-public class AccountServiceImpl implements ru.tersoft.service.AccountServiceImpl {
+public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<Account> getAll() {
         return (List<Account>)accountRepository.findAll();
     }
 
-    public Account get( Long id ) {
+    public Account get(UUID id ) {
         return accountRepository.findOne(id);
     }
 
     public void add(Account account) {
+        String encodedPassword = passwordEncoder.encode(account.getPassword());
+        account.setPassword(encodedPassword);
         accountRepository.save(account);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
        accountRepository.delete(id);
     }
 
