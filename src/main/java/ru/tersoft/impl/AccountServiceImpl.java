@@ -40,8 +40,14 @@ public class AccountServiceImpl implements AccountService {
 
     public void edit(Account account) {
         Account existingAccount = accountRepository.findOne(account.getId());
-        existingAccount.setFirstname(account.getFirstname());
-        existingAccount.setLastname(account.getLastname());
+        if(account.getFirstname() != null)
+            existingAccount.setFirstname(account.getFirstname());
+        if(account.getLastname() != null)
+            existingAccount.setLastname(account.getLastname());
+        if(account.getMail() != null)
+            existingAccount.setMail(account.getMail());
+        if(account.getPassword() != null)
+            existingAccount.setPassword(account.getPassword());
         accountRepository.save(existingAccount);
     }
 }

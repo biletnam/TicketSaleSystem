@@ -43,6 +43,10 @@ public class Account implements Serializable {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getFirstname() {
         return firstname;
     }
