@@ -1,8 +1,5 @@
 package ru.tersoft.config;
 
-import java.util.Properties;
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,9 @@ import org.springframework.dao.annotation.PersistenceExceptionTranslationPostPro
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -30,7 +30,7 @@ public class HibernateConfig {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(restDataSource());
         sessionFactory.setHibernateProperties(hibernateProperties());
-        sessionFactory.setPackagesToScan(new String[] { "ru.tersoft.domain" });
+        sessionFactory.setPackagesToScan(new String[] { "ru.tersoft.entity" });
         return sessionFactory;
     }
 
@@ -61,7 +61,6 @@ public class HibernateConfig {
     Properties hibernateProperties() {
         return new Properties() {
             {
-             //   setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
                 setProperty("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect"));
                 setProperty("hibernate.globally_quoted_identifiers", "true");
             }

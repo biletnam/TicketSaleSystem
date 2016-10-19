@@ -1,9 +1,8 @@
-package ru.tersoft.domain;
-
-import java.io.Serializable;
-import java.util.Date;
+package ru.tersoft.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "account")
@@ -11,7 +10,7 @@ public class Account implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "firstname")
     private String firstname;
@@ -34,7 +33,7 @@ public class Account implements Serializable {
     @Column(name = "admin")
     private boolean isadmin;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

@@ -1,9 +1,11 @@
 package ru.tersoft.controller;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import ru.tersoft.domain.Account;
-import ru.tersoft.service.AccountService;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import ru.tersoft.entity.Account;
+import ru.tersoft.service.AccountServiceImpl;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -12,35 +14,29 @@ import java.util.List;
 @RequestMapping("accounts")
 public class AccountController {
 
-    @Resource(name="AccountService")
-    private AccountService accountService;
+    @Resource(name="AccountServiceImpl")
+    private AccountServiceImpl accountService;
 
-    //@PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<Account> getAccounts() {
-        // Retrieve all persons by delegating the call to PersonService
         List<Account> accounts = accountService.getAll();
         return accounts;
     }
 
-    //@PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public int add(Account account) {
         accountService.add(account);
         return 200;
     }
 
-    //@PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public int delete(@PathVariable("id") Integer id) {
-        // Call PersonService to do the actual deleting
+    public int delete(@PathVariable("id") Long id) {
         accountService.delete(id);
         return 200;
     }
 
-    //@PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Account get(@PathVariable("id") Integer id) {
+    public Account get(@PathVariable("id") Long id) {
         Account account = accountService.get(id);
         return account;
     }
