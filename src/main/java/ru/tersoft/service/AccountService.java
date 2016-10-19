@@ -1,13 +1,12 @@
 package ru.tersoft.service;
 
+import org.springframework.data.domain.Page;
 import ru.tersoft.entity.Account;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface AccountService {
-
-    List<Account> getAll();
+    Page<Account> getAll(int page, int limit);
     Account get(UUID id);
     void add(Account account);
     void delete(UUID id);

@@ -1,7 +1,9 @@
 package ru.tersoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -31,13 +33,15 @@ public class Account implements Serializable {
     private String password;
 
     @Column(name = "birthdate")
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    @JsonFormat(pattern="dd.MM.yyyy", timezone = "Europe/Moscow")
     private Date birthdate;
 
-    @Column(name = "enabled", nullable = false)
-    private boolean isenabled;
+    @Column(name = "enabled")
+    private Boolean enabled;
 
-    @Column(name = "admin", nullable = false)
-    private boolean isadmin;
+    @Column(name = "admin")
+    private Boolean admin;
 
     public UUID getId() {
         return id;
@@ -77,5 +81,29 @@ public class Account implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Date getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public Boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        this.admin = admin;
+    }
+
+    public Boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 }

@@ -1,16 +1,13 @@
 package ru.tersoft.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Account;
 import ru.tersoft.service.AccountService;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +18,9 @@ public class AccountController {
     private AccountService accountService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public List<Account> getAccounts() {
-        List<Account> accounts = accountService.getAll();
+    public Page<Account> getAccounts(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                     @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+        Page<Account> accounts = accountService.getAll(pageNum, limit);
         return accounts;
     }
 

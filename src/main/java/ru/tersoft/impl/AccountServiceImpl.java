@@ -1,6 +1,8 @@
 package ru.tersoft.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,7 +10,6 @@ import ru.tersoft.entity.Account;
 import ru.tersoft.repository.AccountRepository;
 import ru.tersoft.service.AccountService;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service("AccountService")
@@ -20,8 +21,9 @@ public class AccountServiceImpl implements AccountService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public List<Account> getAll() {
-        return (List<Account>)accountRepository.findAll();
+    public Page<Account> getAll(int pagenum, int limit) {
+        final Page<Account> page = accountRepository.findAll(new PageRequest(pagenum, limit));
+        return page;
     }
 
     public Account get(UUID id ) {
@@ -48,6 +50,14 @@ public class AccountServiceImpl implements AccountService {
             existingAccount.setMail(account.getMail());
         if(account.getPassword() != null)
             existingAccount.setPassword(account.getPassword());
+        if(account.getBirthdate() != null)
+            existingAccount.setBirthdate(account.getBirthdate());
+        if(account.isEnabled() != null) {
+            existingAccount.setEnabled(account.isEnabled());
+        }
+        if(account.isAdmin() != null) {
+            existingAccount.setAdmin(account.isAdmin());
+        }
         accountRepository.save(existingAccount);
     }
 }
