@@ -28,7 +28,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public ResponseEntity<?> add(Account account) {
+    public ResponseEntity<?> add(@RequestBody Account account) {
         accountService.add(account);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -45,9 +45,11 @@ public class AccountController {
         return account;
     }
 
-    @RequestMapping(value = "/edit", method = RequestMethod.POST)
-    public ResponseEntity<?> edit(Account account) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Account> edit(@PathVariable("id") UUID id,
+                                        @RequestBody Account account) {
+        account.setId(id);
         accountService.edit(account);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(accountService.get(id), HttpStatus.OK);
     }
 }
