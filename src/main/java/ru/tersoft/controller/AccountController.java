@@ -1,5 +1,6 @@
 package ru.tersoft.controller;
 
+import org.apache.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("accounts")
 public class AccountController {
-
+    private static final Logger LOG = Logger.getLogger(AccountController.class);
     @Resource(name="AccountService")
     private AccountService accountService;
 
-    @PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.GET)
     public Page<Account> getAccounts(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
                                      @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
@@ -26,28 +27,24 @@ public class AccountController {
         return accounts;
     }
 
-    @PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(Account account) {
         accountService.add(account);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         accountService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Account get(@PathVariable("id") UUID id) {
         Account account = accountService.get(id);
         return account;
     }
 
-    @PreAuthorize("#oauth2.clientHasRole('ROLE_USER')")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public ResponseEntity<?> edit(Account account) {
         accountService.edit(account);
