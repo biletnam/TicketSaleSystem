@@ -9,6 +9,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+
 @Configuration
 @EnableResourceServer
 @ComponentScan({ "ru.tersoft" })
@@ -27,7 +30,13 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/accounts/add").permitAll()
+                .antMatchers(POST, "/accounts/add").permitAll()
+                .antMatchers(GET, "/api/**").permitAll()
+                .antMatchers(GET, "/swagger-ui.html").permitAll()
+                .antMatchers(GET, "/webjars/springfox-swagger-ui/**").permitAll()
+                .antMatchers(GET, "/v2/api-docs/**").permitAll()
+                .antMatchers(GET, "/configuration/**").permitAll()
+                .antMatchers(GET, "/swagger-resources/**").permitAll()
                 .anyRequest().authenticated();
 
     }
