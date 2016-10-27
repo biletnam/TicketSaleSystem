@@ -34,7 +34,7 @@ public class AccountController {
         return accounts;
     }
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account")
     public ResponseEntity<?> add(@RequestBody Account account) {
         if(account != null) {

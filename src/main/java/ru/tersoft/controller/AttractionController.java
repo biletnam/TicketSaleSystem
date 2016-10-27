@@ -41,7 +41,7 @@ public class AttractionController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Add new attraction", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
