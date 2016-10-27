@@ -26,7 +26,7 @@ public class AccountServiceImpl implements AccountService {
         return page;
     }
 
-    public Account get(UUID id ) {
+    public Account get(UUID id) {
         return accountRepository.findOne(id);
     }
 

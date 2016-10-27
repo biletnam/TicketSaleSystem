@@ -1,9 +1,9 @@
 package ru.tersoft.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "account")
+@ApiModel(value = "Account")
 public class Account implements Serializable {
     @Id
     @Column(name = "id")
@@ -21,20 +22,22 @@ public class Account implements Serializable {
     private UUID id;
 
     @Column(name = "firstname", nullable = false)
+    @ApiModelProperty(value = "firstname", required = true)
     private String firstname;
 
     @Column(name = "lastname", nullable = false)
+    @ApiModelProperty(value = "lastname", required = true)
     private String lastname;
 
     @Column(name = "mail", nullable = false, unique = true)
+    @ApiModelProperty(value = "mail", required = true)
     private String mail;
 
     @Column(name = "password", nullable = false)
+    @ApiModelProperty(value = "password", required = true)
     private String password;
 
     @Column(name = "birthdate")
-    @DateTimeFormat(pattern = "dd.MM.yyyy")
-    @JsonFormat(pattern="dd.MM.yyyy", timezone = "Europe/Moscow")
     private Date birthdate;
 
     @Column(name = "enabled")

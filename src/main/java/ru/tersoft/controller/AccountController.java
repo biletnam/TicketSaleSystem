@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +17,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("accounts")
-@Api(description = "Work with user accounts")
+@Api(description = "Work with user accounts", tags = {"Account"})
 public class AccountController {
-    private static final Logger LOG = Logger.getLogger(AccountController.class);
     @Resource(name="AccountService")
     private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "Get all accounts data")
+    @ApiOperation(value = "Get all accounts data", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -39,12 +37,14 @@ public class AccountController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account")
     public ResponseEntity<?> add(@RequestBody Account account) {
-        accountService.add(account);
+        if(account != null) {
+            accountService.add(account);
+        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @ApiOperation(value = "Delete account from database by id")
+    @ApiOperation(value = "Delete account from database by id", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })

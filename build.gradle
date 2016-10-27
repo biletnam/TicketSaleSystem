@@ -36,6 +36,7 @@ dependencies {
     compile('io.springfox:springfox-swagger2')
     compile('io.springfox:springfox-swagger-ui')
     compile('com.google.guava:guava')
+    compile('net.coobird:thumbnailator')
 	compile('mysql:mysql-connector-java')
     compile('commons-dbcp:commons-dbcp')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
