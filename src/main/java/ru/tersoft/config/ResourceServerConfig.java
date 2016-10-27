@@ -31,6 +31,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers(POST, "/accounts/add").permitAll()
+                .antMatchers(GET, "/attractions/**").permitAll()
+                .antMatchers(GET, "/images/attractions/**").permitAll()
                 .antMatchers(GET, "/api/**").permitAll()
                 .antMatchers(GET, "/swagger-ui.html").permitAll()
                 .antMatchers(GET, "/webjars/springfox-swagger-ui/**").permitAll()

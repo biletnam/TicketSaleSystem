@@ -41,6 +41,8 @@ public class AttractionServiceImpl implements AttractionService {
             existingAttraction.setDescription(attraction.getDescription());
         if(attraction.getImagepath() != null)
             existingAttraction.setImagepath(attraction.getImagepath());
+        if(attraction.getSmallimagepath() != null)
+            existingAttraction.setSmallimagepath(attraction.getSmallimagepath());
         if(attraction.getMaintaince() != null)
             existingAttraction.setMaintaince(attraction.getMaintaince());
         attractionRepository.save(existingAttraction);

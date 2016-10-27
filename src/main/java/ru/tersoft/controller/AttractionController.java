@@ -46,10 +46,10 @@ public class AttractionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestParam(value = "name") String name,
-                                 @RequestParam(value = "description") String description,
-                                 @RequestParam(value = "maintaince", required = false) Boolean maintaince,
-                                 @RequestParam(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<?> add(@RequestPart(value = "name") String name,
+                                 @RequestPart(value = "description") String description,
+                                 @RequestPart(value = "maintaince", required = false) Boolean maintaince,
+                                 @RequestPart(value = "image", required = false) MultipartFile image) {
         Attraction attraction = new Attraction();
         attraction.setDescription(description);
         attraction.setName(name);
@@ -71,7 +71,7 @@ public class AttractionController {
                     File file = new File(filename);
                     image.transferTo(file);
                     Thumbnails.of(file)
-                            .size(200, 200)
+                            .size(150, 150)
                             .outputFormat("jpg")
                             .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
                     attraction.setImagepath("/images/attractions/" + imageId + ".jpg");
@@ -114,9 +114,20 @@ public class AttractionController {
     })
     @ApiOperation(value = "Edit attraction info", notes = "Admin access required")
     public ResponseEntity<Attraction> edit(@PathVariable("id") UUID id,
-                                        @RequestBody Attraction attraction) {
+                                           @RequestPart(value = "name", required = false) String name,
+                                           @RequestPart(value = "description", required = false) String description,
+                                           @RequestPart(value = "maintaince", required = false) Boolean maintaince,
+                                           @RequestPart(value = "image", required = false) MultipartFile image) {
+        Attraction attraction = new Attraction();
         attraction.setId(id);
-        attractionService.edit(attraction);
+        attraction.setDescription(description);
+        attraction.setName(name);
+        attraction.setMaintaince(maintaince);
+        if(image != null)
+            attraction = saveImage(attraction, image);
+        if(attraction != null)
+            attractionService.edit(attraction);
+        else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(attractionService.get(id), HttpStatus.OK);
     }
 }
