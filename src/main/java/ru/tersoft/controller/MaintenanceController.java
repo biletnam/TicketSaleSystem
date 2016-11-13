@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Maintenance;
@@ -40,15 +41,55 @@ public class MaintenanceController {
         else throw new RequestRejectedException("You must pass attraction id or date");
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Add new maintenance period")
+    @ApiOperation(value = "Add new maintenance period", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> add(@RequestBody Maintenance maintenance) {
         if(maintenance != null) {
             maintenanceService.add(maintenance);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get maintenance info by id")
+    public Maintenance get(@PathVariable("id") UUID id) {
+        Maintenance maintenance = maintenanceService.get(id);
+        return maintenance;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    @ApiOperation(value = "Edit maintenance info", notes = "Admin access required")
+    public ResponseEntity<Maintenance> edit(@PathVariable("id") UUID id,
+                                            @RequestParam(required = false) String reason,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date startdate,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date enddate) {
+        Maintenance maintenance = new Maintenance();
+        maintenance.setId(id);
+        maintenance.setReason(reason);
+        maintenance.setStartdate(startdate);
+        maintenance.setEnddate(enddate);
+        if(maintenance.getId() != null)
+            maintenanceService.edit(maintenance);
+        else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(maintenanceService.get(id), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ApiOperation(value = "Delete maintenance", notes = "Admin access required")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+        maintenanceService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

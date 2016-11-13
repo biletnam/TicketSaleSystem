@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "maintaince")
+@Table(name = "maintenance")
 @ApiModel(value = "Maintenance")
 public class Maintenance implements Serializable {
     @Id
@@ -22,28 +23,30 @@ public class Maintenance implements Serializable {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "attractionid", nullable = false)
-    @ApiModelProperty(value = "attractionid", required = true)
+    @JoinColumn(name = "attraction", nullable = false)
+    @ApiModelProperty(value = "attraction", required = true)
     private Attraction attraction;
 
     @Column(name = "startdate", nullable = false)
     @ApiModelProperty(value = "startdate", required = true)
+    @DateTimeFormat(pattern="dd-MM-yyyy")
     private Date startdate;
 
     @Column(name = "enddate", nullable = false)
     @ApiModelProperty(value = "enddate", required = true)
+    @DateTimeFormat(pattern="dd-MM-yyyy")
     private Date enddate;
 
     @Column(name = "reason", columnDefinition="TEXT", nullable = false)
     @ApiModelProperty(value = "reason", required = true)
     private String reason;
 
-    public Attraction getAttractionid() {
+    public Attraction getAttraction() {
         return attraction;
     }
 
-    public void setAttractionid(Attraction attractionid) {
-        this.attraction = attractionid;
+    public void setAttraction(Attraction attraction) {
+        this.attraction = attraction;
     }
 
     public Date getStartdate() {

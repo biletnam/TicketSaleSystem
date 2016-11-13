@@ -48,7 +48,7 @@ public class AttractionController {
         Attraction attraction = new Attraction();
         attraction.setDescription(description);
         attraction.setName(name);
-        attraction.setMaintaince(maintaince);
+        attraction.setMaintenance(maintaince);
         if(image != null)
             attraction = saveImage(attraction, image);
         if(attraction != null)
@@ -117,7 +117,7 @@ public class AttractionController {
         attraction.setId(id);
         attraction.setDescription(description);
         attraction.setName(name);
-        attraction.setMaintaince(maintaince);
+        attraction.setMaintenance(maintaince);
         if(image != null)
             attraction = saveImage(attraction, image);
         if(attraction != null)

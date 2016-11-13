@@ -25,7 +25,7 @@ public class AttractionServiceImpl implements AttractionService {
     }
 
     public void add(Attraction attraction) {
-        if(attraction.getMaintaince() == null) attraction.setMaintaince(true);
+        if(attraction.getMaintenance() == null) attraction.setMaintenance(true);
         attractionRepository.save(attraction);
     }
 
@@ -43,8 +43,8 @@ public class AttractionServiceImpl implements AttractionService {
             existingAttraction.setImagepath(attraction.getImagepath());
         if(attraction.getSmallimagepath() != null)
             existingAttraction.setSmallimagepath(attraction.getSmallimagepath());
-        if(attraction.getMaintaince() != null)
-            existingAttraction.setMaintaince(attraction.getMaintaince());
+        if(attraction.getMaintenance() != null)
+            existingAttraction.setMaintenance(attraction.getMaintenance());
         attractionRepository.save(existingAttraction);
     }
 }

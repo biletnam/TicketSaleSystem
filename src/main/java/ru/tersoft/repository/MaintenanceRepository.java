@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface MaintenanceRepository extends CrudRepository<Maintenance, UUID> {
     Iterable<Maintenance> findByAttraction(Attraction attraction);
 
-    @Query("select m from Maintenance m " +
+    @Query("from Maintenance m " +
             "where m.startdate <= ?1 and m.enddate >= ?1")
     Iterable<Maintenance> findByDate(Date today);
 }

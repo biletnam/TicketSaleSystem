@@ -34,8 +34,8 @@ public class Attraction implements Serializable {
     @Column(name = "smallimagepath")
     private String smallimagepath;
 
-    @Column(name = "maintaince")
-    private Boolean maintaince;
+    @Column(name = "maintenance")
+    private Boolean maintenance;
 
     public UUID getId() {
         return id;
@@ -69,12 +69,12 @@ public class Attraction implements Serializable {
         this.imagepath = imagepath;
     }
 
-    public Boolean getMaintaince() {
-        return maintaince;
+    public Boolean getMaintenance() {
+        return maintenance;
     }
 
-    public void setMaintaince(Boolean maintaince) {
-        this.maintaince = maintaince;
+    public void setMaintenance(Boolean maintenance) {
+        this.maintenance = maintenance;
     }
 
     public String getSmallimagepath() {
