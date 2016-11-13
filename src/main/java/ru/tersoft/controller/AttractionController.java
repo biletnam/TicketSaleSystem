@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiOperation;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +16,6 @@ import ru.tersoft.entity.Attraction;
 import ru.tersoft.service.AttractionService;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -31,12 +29,9 @@ public class AttractionController {
     private AttractionService attractionService;
     private String imagesLocation = "C:/Users/termi/IdeaProjects/ticketsale/src/main/resources/images/attractions/";
 
-    @Autowired
-    private ServletContext servletContext;
-
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of attractions")
-    public List<Attraction> getAccounts() {
+    public List<Attraction> getAttractions() {
         return (List<Attraction>)attractionService.getAll();
     }
 
@@ -71,7 +66,7 @@ public class AttractionController {
                     File file = new File(filename);
                     image.transferTo(file);
                     Thumbnails.of(file)
-                            .size(150, 150)
+                            .size(200, 150)
                             .outputFormat("jpg")
                             .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
                     attraction.setImagepath("/images/attractions/" + imageId + ".jpg");
