@@ -32,6 +32,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(POST, "/accounts/").permitAll()
                 .antMatchers(GET, "/attractions/**").permitAll()
+                .antMatchers(GET, "/attractions/main/**").permitAll()
                 .antMatchers(GET, "/images/attractions/**").permitAll()
                 .antMatchers(GET, "/api/**").permitAll()
                 .antMatchers(GET, "/swagger-ui.html").permitAll()

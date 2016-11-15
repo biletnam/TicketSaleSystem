@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.*;
+import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Maintenance;
 import ru.tersoft.service.MaintenanceService;
 
@@ -27,12 +28,9 @@ public class MaintenanceController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of maintenance dates by attraction id or date")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
-    })
     public List<Maintenance> getMaintenances
-            (@RequestParam(value = "id", required = false) UUID attractionid,
-             @RequestParam(value = "date", required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date today) {
+            (@RequestParam(value = "attrid", required = false) UUID attractionid,
+             @RequestParam(value = "date", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
         if(today != null) {
             return (List<Maintenance>) maintenanceService.getAll(today);
         } else if(attractionid != null) {
@@ -47,11 +45,19 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestBody Maintenance maintenance) {
-        if(maintenance != null) {
-            maintenanceService.add(maintenance);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> add(@RequestParam UUID attrid,
+                                 @RequestParam String reason,
+                                 @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date startdate,
+                                 @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date enddate) {
+        Maintenance maintenance = new Maintenance();
+        Attraction attraction = new Attraction();
+        attraction.setId(attrid);
+        maintenance.setAttraction(attraction);
+        maintenance.setReason(reason);
+        maintenance.setStartdate(startdate);
+        maintenance.setEnddate(enddate);
+        maintenanceService.add(maintenance);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -69,8 +75,8 @@ public class MaintenanceController {
     @ApiOperation(value = "Edit maintenance info", notes = "Admin access required")
     public ResponseEntity<Maintenance> edit(@PathVariable("id") UUID id,
                                             @RequestParam(required = false) String reason,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date startdate,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date enddate) {
+                                            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date startdate,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date enddate) {
         Maintenance maintenance = new Maintenance();
         maintenance.setId(id);
         maintenance.setReason(reason);
@@ -78,7 +84,7 @@ public class MaintenanceController {
         maintenance.setEnddate(enddate);
         if(maintenance.getId() != null)
             maintenanceService.edit(maintenance);
-        else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(maintenanceService.get(id), HttpStatus.OK);
     }
 

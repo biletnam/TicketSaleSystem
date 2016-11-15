@@ -27,14 +27,16 @@ public class Maintenance implements Serializable {
     @ApiModelProperty(value = "attraction", required = true)
     private Attraction attraction;
 
-    @Column(name = "startdate", nullable = false)
+    @Column(name = "startdate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(value = "startdate", required = true)
-    @DateTimeFormat(pattern="dd-MM-yyyy")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
     private Date startdate;
 
-    @Column(name = "enddate", nullable = false)
+    @Column(name = "enddate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(value = "enddate", required = true)
-    @DateTimeFormat(pattern="dd-MM-yyyy")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
     private Date enddate;
 
     @Column(name = "reason", columnDefinition="TEXT", nullable = false)

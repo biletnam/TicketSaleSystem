@@ -43,12 +43,12 @@ public class AttractionController {
     })
     public ResponseEntity<?> add(@RequestPart(value = "name") String name,
                                  @RequestPart(value = "description") String description,
-                                 @RequestPart(value = "maintaince", required = false) Boolean maintaince,
+                                 @RequestPart(value = "maintenance", required = false) Boolean maintenance,
                                  @RequestPart(value = "image", required = false) MultipartFile image) {
         Attraction attraction = new Attraction();
         attraction.setDescription(description);
         attraction.setName(name);
-        attraction.setMaintenance(maintaince);
+        attraction.setMaintenance(maintenance);
         if(image != null)
             attraction = saveImage(attraction, image);
         if(attraction != null)
