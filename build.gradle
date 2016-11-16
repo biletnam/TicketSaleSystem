@@ -40,6 +40,6 @@ dependencies {
     compile('com.google.guava:guava:20.0')
 	compile('mysql:mysql-connector-java')
     compile('commons-dbcp:commons-dbcp')
-    compile fileTree(dir: 'lib', include: '*.jar')
+    compile fileTree(dir: 'lib', include: ['*.jar'])
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
