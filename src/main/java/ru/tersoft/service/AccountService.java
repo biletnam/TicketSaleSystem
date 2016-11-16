@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface AccountService {
     Page<Account> getAll(int page, int limit);
     Account get(UUID id);
-    void add(Account account);
+    Account add(Account account);
     void delete(UUID id);
     void edit(Account account);
 }

@@ -24,7 +24,15 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-        registry.addResourceHandler("/images/**").addResourceLocations(env.getProperty("ticketsale.images-folder"));
+        String prefix = env.getProperty("ticketsale.images-folder-prefix");
+        if(prefix != null) {
+            registry.addResourceHandler("/images/**")
+                    .addResourceLocations(prefix + ":"
+                            + env.getProperty("ticketsale.images-folder"));
+        } else {
+            registry.addResourceHandler("/images/**")
+                    .addResourceLocations(env.getProperty("ticketsale.images-folder"));
+        }
     }
 
 }

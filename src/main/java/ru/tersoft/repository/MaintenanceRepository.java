@@ -1,14 +1,14 @@
 package ru.tersoft.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Maintenance;
 
 import java.util.Date;
 import java.util.UUID;
 
-public interface MaintenanceRepository extends CrudRepository<Maintenance, UUID> {
+public interface MaintenanceRepository extends JpaRepository<Maintenance, UUID> {
     Iterable<Maintenance> findByAttraction(Attraction attraction);
 
     @Query("from Maintenance m " +

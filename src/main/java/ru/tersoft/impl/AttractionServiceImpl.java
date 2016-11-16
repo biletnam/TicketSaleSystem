@@ -24,9 +24,9 @@ public class AttractionServiceImpl implements AttractionService {
         return attractionRepository.findOne(id);
     }
 
-    public void add(Attraction attraction) {
+    public Attraction add(Attraction attraction) {
         if(attraction.getMaintenance() == null) attraction.setMaintenance(true);
-        attractionRepository.save(attraction);
+        return attractionRepository.saveAndFlush(attraction);
     }
 
     public void delete(UUID id) {

@@ -9,7 +9,7 @@ public interface MaintenanceService {
     Iterable<Maintenance> getAll(UUID attractionid);
     Iterable<Maintenance> getAll(Date today);
     Maintenance get(UUID id);
-    void add(Maintenance maintenance);
+    Maintenance add(Maintenance maintenance);
     void delete(UUID id);
     void edit(Maintenance maintenance);
 }

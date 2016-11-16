@@ -1,9 +1,11 @@
 package ru.tersoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -37,7 +39,10 @@ public class Account implements Serializable {
     @ApiModelProperty(value = "password", required = true)
     private String password;
 
-    @Column(name = "birthdate")
+    @Column(name = "birthdate", columnDefinition = "DATE")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
     private Date birthdate;
 
     @Column(name = "enabled")

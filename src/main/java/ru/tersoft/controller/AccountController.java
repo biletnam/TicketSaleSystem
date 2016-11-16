@@ -36,11 +36,11 @@ public class AccountController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account")
-    public ResponseEntity<?> add(@RequestBody Account account) {
+    public ResponseEntity<Account> add(@RequestBody Account account) {
         if(account != null) {
-            accountService.add(account);
+            Account addedAccount = accountService.add(account);
+            return new ResponseEntity<>(addedAccount, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

@@ -30,7 +30,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers(POST, "/accounts/").permitAll()
+                .antMatchers(POST, "/accounts").permitAll()
                 .antMatchers(GET, "/attractions/**").permitAll()
                 .antMatchers(GET, "/attractions/main/**").permitAll()
                 .antMatchers(GET, "/images/attractions/**").permitAll()

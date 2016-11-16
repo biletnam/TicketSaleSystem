@@ -45,7 +45,7 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestParam UUID attrid,
+    public ResponseEntity<Maintenance> add(@RequestParam UUID attrid,
                                  @RequestParam String reason,
                                  @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date startdate,
                                  @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date enddate) {
@@ -56,8 +56,8 @@ public class MaintenanceController {
         maintenance.setReason(reason);
         maintenance.setStartdate(startdate);
         maintenance.setEnddate(enddate);
-        maintenanceService.add(maintenance);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Maintenance addedMaintenance = maintenanceService.add(maintenance);
+        return new ResponseEntity<>(addedMaintenance, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

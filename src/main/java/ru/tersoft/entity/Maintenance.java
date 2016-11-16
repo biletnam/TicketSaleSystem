@@ -1,5 +1,6 @@
 package ru.tersoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,12 +31,14 @@ public class Maintenance implements Serializable {
     @Column(name = "startdate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(value = "startdate", required = true)
     @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone = "UTC")
     @Temporal(TemporalType.DATE)
     private Date startdate;
 
     @Column(name = "enddate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(value = "enddate", required = true)
     @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date enddate;
 

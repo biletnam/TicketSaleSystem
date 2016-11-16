@@ -38,8 +38,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     @Override
-    public void add(Maintenance maintenance) {
-        maintenanceRepository.save(maintenance);
+    public Maintenance add(Maintenance maintenance) {
+        return maintenanceRepository.saveAndFlush(maintenance);
     }
 
     @Override

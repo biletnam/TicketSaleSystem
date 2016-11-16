@@ -30,12 +30,12 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findOne(id);
     }
 
-    public void add(Account account) {
+    public Account add(Account account) {
         String encodedPassword = passwordEncoder.encode(account.getPassword());
         account.setPassword(encodedPassword);
         if(account.isEnabled() == null) account.setEnabled(true);
         if(account.isAdmin() == null) account.setAdmin(false);
-        accountRepository.save(account);
+        return accountRepository.saveAndFlush(account);
     }
 
     public void delete(UUID id) {

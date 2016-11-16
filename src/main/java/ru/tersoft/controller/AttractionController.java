@@ -32,6 +32,11 @@ public class AttractionController {
     @Value("${ticketsale.images-folder}")
     private String imagesLocation;
 
+    @Value("${ticketsale.attraction-height}")
+    private int imagesHeight;
+    @Value("${ticketsale.attraction-width}")
+    private int imagesWidth;
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of attractions")
     public List<Attraction> getAttractions() {
@@ -39,37 +44,38 @@ public class AttractionController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = "multipart/form-data")
     @ApiOperation(value = "Add new attraction", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestPart(value = "name") String name,
-                                 @RequestPart(value = "description") String description,
-                                 @RequestPart(value = "maintenance", required = false) Boolean maintenance,
-                                 @RequestPart(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<Attraction> add(@RequestParam(value = "name") String name,
+                                 @RequestParam(value = "description") String description,
+                                 @RequestParam(value = "maintenance", required = false) Boolean maintenance,
+                                 @RequestParam(value = "image", required = false) MultipartFile image) {
         Attraction attraction = new Attraction();
         attraction.setDescription(description);
         attraction.setName(name);
         attraction.setMaintenance(maintenance);
         if(image != null)
             attraction = saveImage(attraction, image);
-        if(attraction != null)
-            attractionService.add(attraction);
-        else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(attraction != null) {
+            Attraction addedAttraction = attractionService.add(attraction);
+            return new ResponseEntity<>(addedAttraction, HttpStatus.OK);
+        }
+        else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    Attraction saveImage(Attraction attraction, MultipartFile image) {
+    private Attraction saveImage(Attraction attraction, MultipartFile image) {
         try {
             if (!image.isEmpty()) {
                 if(image.getContentType().equals("image/jpeg")) {
                     UUID imageId = UUID.randomUUID();
-                    String filename = imagesLocation + imageId + ".jpg";
+                    String filename = imagesLocation + "attractions/" + imageId + ".jpg";
                     File file = new File(filename);
                     image.transferTo(file);
                     Thumbnails.of(file)
-                            .size(200, 150)
+                            .size(imagesWidth, imagesHeight)
                             .outputFormat("jpg")
                             .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
                     attraction.setImagepath("/images/attractions/" + imageId + ".jpg");
