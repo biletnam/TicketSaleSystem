@@ -15,15 +15,16 @@ import java.util.UUID;
 @Service("AccountService")
 @Transactional
 public class AccountServiceImpl implements AccountService {
-
-    @Autowired
-    private AccountRepository accountRepository;
-
+    private final AccountRepository accountRepository;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @Autowired
+    public AccountServiceImpl(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
     public Page<Account> getAll(int pagenum, int limit) {
-        final Page<Account> page = accountRepository.findAll(new PageRequest(pagenum, limit));
-        return page;
+        return accountRepository.findAll(new PageRequest(pagenum, limit));
     }
 
     public Account get(UUID id) {

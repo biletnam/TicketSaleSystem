@@ -63,8 +63,7 @@ public class MaintenanceController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get maintenance info by id")
     public Maintenance get(@PathVariable("id") UUID id) {
-        Maintenance maintenance = maintenanceService.get(id);
-        return maintenance;
+        return maintenanceService.get(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

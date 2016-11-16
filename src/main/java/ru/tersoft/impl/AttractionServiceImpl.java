@@ -12,9 +12,12 @@ import java.util.UUID;
 @Service("AttractionService")
 @Transactional
 public class AttractionServiceImpl implements AttractionService {
+    private final AttractionRepository attractionRepository;
 
     @Autowired
-    private AttractionRepository attractionRepository;
+    public AttractionServiceImpl(AttractionRepository attractionRepository) {
+        this.attractionRepository = attractionRepository;
+    }
 
     public Iterable<Attraction> getAll() {
         return attractionRepository.findAll();

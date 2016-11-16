@@ -15,11 +15,14 @@ import ru.tersoft.service.JdbcUserDetailsService;
 @EnableWebSecurity
 @ComponentScan({ "ru.tersoft" })
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private JdbcUserDetailsService userDetailsService;
+    private final JdbcUserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public SecurityConfig(JdbcUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     @Bean

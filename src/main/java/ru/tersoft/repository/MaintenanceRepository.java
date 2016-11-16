@@ -11,7 +11,6 @@ import java.util.UUID;
 public interface MaintenanceRepository extends JpaRepository<Maintenance, UUID> {
     Iterable<Maintenance> findByAttraction(Attraction attraction);
 
-    @Query("from Maintenance m " +
-            "where m.startdate <= ?1 and m.enddate >= ?1")
+    @Query("select m from Maintenance m where m.startdate <= ?1 and m.enddate >= ?1")
     Iterable<Maintenance> findByDate(Date today);
 }

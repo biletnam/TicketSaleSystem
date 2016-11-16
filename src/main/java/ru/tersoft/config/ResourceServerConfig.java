@@ -16,9 +16,12 @@ import static org.springframework.http.HttpMethod.POST;
 @EnableResourceServer
 @ComponentScan({ "ru.tersoft" })
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+    private final TokenStore tokenStore;
 
     @Autowired
-    private TokenStore tokenStore;
+    public ResourceServerConfig(TokenStore tokenStore) {
+        this.tokenStore = tokenStore;
+    }
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources)

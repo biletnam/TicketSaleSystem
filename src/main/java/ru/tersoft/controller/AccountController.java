@@ -30,8 +30,7 @@ public class AccountController {
     })
     public Page<Account> getAccounts(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
                                      @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
-        Page<Account> accounts = accountService.getAll(pageNum, limit);
-        return accounts;
+        return accountService.getAll(pageNum, limit);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -60,8 +59,7 @@ public class AccountController {
     })
     @ApiOperation(value = "Get account data by id")
     public Account get(@PathVariable("id") UUID id) {
-        Account account = accountService.get(id);
-        return account;
+        return accountService.get(id);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)

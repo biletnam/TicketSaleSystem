@@ -25,19 +25,18 @@ import javax.sql.DataSource;
 @EnableAuthorizationServer
 @ComponentScan({ "ru.tersoft" })
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+    private final AuthenticationManager auth;
+    private final JdbcUserDetailsService userDetailsService;
+    private final DataSource dataSource;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    @Qualifier("authenticationManagerBean")
-    private AuthenticationManager auth;
-
-    @Autowired
-    private JdbcUserDetailsService userDetailsService;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, JdbcUserDetailsService userDetailsService) {
+        this.auth = auth;
+        this.passwordEncoder = passwordEncoder;
+        this.dataSource = dataSource;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public JdbcTokenStore tokenStore() {

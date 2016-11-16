@@ -11,8 +11,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableWebMvc
 public class WebAppConfig extends WebMvcConfigurerAdapter {
+    private final Environment env;
+
     @Autowired
-    private Environment env;
+    public WebAppConfig(Environment env) {
+        this.env = env;
+    }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {

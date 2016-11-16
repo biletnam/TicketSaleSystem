@@ -21,16 +21,19 @@ import java.util.Properties;
 @ComponentScan({ "ru.tersoft" })
 @PropertySource(value = { "classpath:application.properties" })
 public class HibernateConfig {
+    private final Environment env;
 
     @Autowired
-    private Environment env;
+    public HibernateConfig(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(restDataSource());
         sessionFactory.setHibernateProperties(hibernateProperties());
-        sessionFactory.setPackagesToScan(new String[] { "ru.tersoft.entity" });
+        sessionFactory.setPackagesToScan("ru.tersoft.entity");
         return sessionFactory;
     }
 
@@ -58,7 +61,7 @@ public class HibernateConfig {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-    Properties hibernateProperties() {
+    private Properties hibernateProperties() {
         return new Properties() {
             {
                 setProperty("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto"));

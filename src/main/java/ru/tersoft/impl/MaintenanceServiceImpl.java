@@ -15,12 +15,15 @@ import java.util.UUID;
 @Service("MaintenanceService")
 @Transactional
 public class MaintenanceServiceImpl implements MaintenanceService {
+    private final MaintenanceRepository maintenanceRepository;
+    private final AttractionRepository attractionRepository;
 
     @Autowired
-    private MaintenanceRepository maintenanceRepository;
+    public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository, AttractionRepository attractionRepository) {
+        this.maintenanceRepository = maintenanceRepository;
+        this.attractionRepository = attractionRepository;
+    }
 
-    @Autowired
-    private AttractionRepository attractionRepository;
     @Override
     public Iterable<Maintenance> getAll(UUID attractionid) {
         Attraction attraction = attractionRepository.findOne(attractionid);

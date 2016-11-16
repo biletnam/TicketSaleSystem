@@ -107,8 +107,7 @@ public class AttractionController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get attraction by id")
     public Attraction get(@PathVariable("id") UUID id) {
-        Attraction attraction = attractionService.get(id);
-        return attraction;
+        return attractionService.get(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
