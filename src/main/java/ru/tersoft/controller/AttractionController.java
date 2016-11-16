@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,9 @@ import java.util.UUID;
 public class AttractionController {
     @Resource(name="AttractionService")
     private AttractionService attractionService;
-    private String imagesLocation = "C:/Users/termi/IdeaProjects/ticketsale/src/main/resources/images/attractions/";
+
+    @Value("${ticketsale.images-folder}")
+    private String imagesLocation;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of attractions")
