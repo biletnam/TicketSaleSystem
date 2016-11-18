@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Order;
 import ru.tersoft.entity.Ticket;
+import ru.tersoft.repository.AccountRepository;
 import ru.tersoft.repository.AttractionRepository;
 import ru.tersoft.repository.OrderRepository;
 import ru.tersoft.repository.TicketRepository;
@@ -20,12 +21,14 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final AttractionRepository attractionRepository;
     private final TicketRepository ticketRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, AttractionRepository attractionRepository, TicketRepository ticketRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository, AttractionRepository attractionRepository, TicketRepository ticketRepository, AccountRepository accountRepository) {
         this.orderRepository = orderRepository;
         this.attractionRepository = attractionRepository;
         this.ticketRepository = ticketRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -36,6 +39,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order get(UUID id) {
         return orderRepository.findOne(id);
+    }
+
+    @Override
+    public Iterable<Order> getByAccount(UUID accountid) {
+        return orderRepository.findByAccount(accountRepository.findOne(accountid));
     }
 
     @Override
@@ -52,20 +60,35 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void edit(Order order) {
-        Order existingOrder = orderRepository.findOne(order.getId());
-        if(order.isPayed() != null) existingOrder.setPayed(order.isPayed());
-        if(order.getOrderdate() != null) existingOrder.setOrderdate(order.getOrderdate());
+    public void setPayed(UUID orderid) {
+        Order order = orderRepository.findOne(orderid);
+        order.setPayed(true);
+        orderRepository.saveAndFlush(order);
     }
 
     @Override
-    public void addTicket(UUID orderid, Ticket ticket) {
+    public void addTickets(UUID orderid, List<Ticket> tickets) {
         Order order = orderRepository.findOne(orderid);
-        List<Ticket> tickets = order.getTickets();
-        tickets.add(ticket);
-        order.setTickets(tickets);
+        List<Ticket> savedTickets = order.getTickets();
+        for(int i = 0; i < tickets.size(); i++) {
+            Ticket savedTicket = ticketRepository.saveAndFlush(tickets.get(i));
+            savedTickets.add(savedTicket);
+        }
+        order.setTickets(savedTickets);
         order = countTotal(order);
-        orderRepository.save(order);
+        orderRepository.saveAndFlush(order);
+    }
+
+    @Override
+    public void deleteTicket(UUID ticketid) {
+        Ticket ticket = ticketRepository.findOne(ticketid);
+        Order order = ticket.getOrder();
+        List<Ticket> tickets = order.getTickets();
+        tickets.remove(ticket);
+        order.setTickets(tickets);
+        orderRepository.saveAndFlush(order);
+        ticket.setOrder(null);
+        ticketRepository.delete(ticketid);
     }
 
     private Order countTotal(Order order) {
