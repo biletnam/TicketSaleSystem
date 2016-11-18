@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.*;
-import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Maintenance;
 import ru.tersoft.service.MaintenanceService;
 
@@ -26,17 +25,24 @@ public class MaintenanceController {
     @Resource(name = "MaintenanceService")
     private MaintenanceService maintenanceService;
 
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of maintenance dates by attraction id or date")
+    @RequestMapping(value = "/{attrid}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get list of maintenance dates by attraction id")
     public List<Maintenance> getMaintenances
-            (@RequestParam(value = "attrid", required = false) UUID attractionid,
-             @RequestParam(value = "date", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
-        if(today != null) {
-            return (List<Maintenance>) maintenanceService.getAll(today);
-        } else if(attractionid != null) {
+            (@PathVariable("attrid") UUID attractionid) {
+        if(attractionid != null) {
             return (List<Maintenance>) maintenanceService.getAll(attractionid);
         }
-        else throw new RequestRejectedException("You must pass attraction id or date");
+        else throw new RequestRejectedException("You must pass attraction id");
+    }
+
+    @RequestMapping(value = "/date/{date}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get list of maintenance dates by date")
+    public List<Maintenance> getMaintenances
+            (@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
+        if(today != null) {
+            return (List<Maintenance>) maintenanceService.getAll(today);
+        }
+        else throw new RequestRejectedException("You must pass date");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -45,46 +51,22 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Maintenance> add(@RequestParam UUID attrid,
-                                 @RequestParam String reason,
-                                 @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date startdate,
-                                 @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Date enddate) {
-        Maintenance maintenance = new Maintenance();
-        Attraction attraction = new Attraction();
-        attraction.setId(attrid);
-        maintenance.setAttraction(attraction);
-        maintenance.setReason(reason);
-        maintenance.setStartdate(startdate);
-        maintenance.setEnddate(enddate);
+    public ResponseEntity<Maintenance> add(@RequestBody Maintenance maintenance) {
         Maintenance addedMaintenance = maintenanceService.add(maintenance);
         return new ResponseEntity<>(addedMaintenance, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get maintenance info by id")
-    public Maintenance get(@PathVariable("id") UUID id) {
-        return maintenanceService.get(id);
-    }
-
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "", method = RequestMethod.PUT)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit maintenance info", notes = "Admin access required")
-    public ResponseEntity<Maintenance> edit(@PathVariable("id") UUID id,
-                                            @RequestParam(required = false) String reason,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date startdate,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date enddate) {
-        Maintenance maintenance = new Maintenance();
-        maintenance.setId(id);
-        maintenance.setReason(reason);
-        maintenance.setStartdate(startdate);
-        maintenance.setEnddate(enddate);
+    public ResponseEntity<Maintenance> edit(@RequestBody Maintenance maintenance) {
         if(maintenance.getId() != null)
             maintenanceService.edit(maintenance);
         else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(maintenanceService.get(id), HttpStatus.OK);
+        return new ResponseEntity<>(maintenanceService.get(maintenance.getId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

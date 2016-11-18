@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +29,9 @@ public class OrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public List<Order> getOrders() {
-        return (List<Order>)orderService.getAll();
+    public Page<Order> getOrders(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                 @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+        return orderService.getAll(pageNum, limit);
     }
 
     @ApiOperation(value = "Get order by id")

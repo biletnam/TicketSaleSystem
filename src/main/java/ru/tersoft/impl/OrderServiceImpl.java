@@ -1,6 +1,8 @@
 package ru.tersoft.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.entity.Attraction;
@@ -32,8 +34,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Iterable<Order> getAll() {
-        return orderRepository.findAll();
+    public Page<Order> getAll(int pagenum, int limit) {
+        return orderRepository.findAll(new PageRequest(pagenum, limit));
     }
 
     @Override
