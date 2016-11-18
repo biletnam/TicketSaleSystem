@@ -42,8 +42,8 @@ public class Maintenance implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date enddate;
 
-    @Column(name = "reason", columnDefinition="TEXT", nullable = false)
-    @ApiModelProperty(value = "reason", required = true)
+    @Column(name = "reason", columnDefinition="TEXT")
+    @ApiModelProperty(value = "reason")
     private String reason;
 
     public Attraction getAttraction() {

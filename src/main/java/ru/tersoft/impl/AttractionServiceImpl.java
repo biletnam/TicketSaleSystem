@@ -40,6 +40,8 @@ public class AttractionServiceImpl implements AttractionService {
         Attraction existingAttraction = attractionRepository.findOne(attraction.getId());
         if(attraction.getName() != null)
             existingAttraction.setName(attraction.getName());
+        if(attraction.getPrice() != null)
+            existingAttraction.setPrice(attraction.getPrice());
         if(attraction.getDescription() != null)
             existingAttraction.setDescription(attraction.getDescription());
         if(attraction.getImagepath() != null)

@@ -28,6 +28,10 @@ public class Attraction implements Serializable {
     @ApiModelProperty(value = "description", required = true)
     private String description;
 
+    @Column(name = "price", columnDefinition = "decimal(19,4)", nullable = false)
+    @ApiModelProperty(value = "price", required = true)
+    private Float price;
+
     @Column(name = "imagepath")
     private String imagepath;
 
@@ -83,5 +87,13 @@ public class Attraction implements Serializable {
 
     public void setSmallimagepath(String smallimagepath) {
         this.smallimagepath = smallimagepath;
+    }
+
+    public Float getPrice() {
+        return price;
+    }
+
+    public void setPrice(Float price) {
+        this.price = price;
     }
 }
