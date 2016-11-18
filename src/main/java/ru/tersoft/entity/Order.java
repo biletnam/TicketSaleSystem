@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 @ApiModel(value = "Order")
-public class Order {
+public class Order implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "uuid2")

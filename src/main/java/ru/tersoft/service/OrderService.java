@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface OrderService {
     Page<Order> getAll(int page, int limit);
     Order get(UUID id);
-    Iterable<Order> getByAccount(UUID accountid);
+    Iterable<Order> getByAccount(UUID orderid);
     Order add(Order order);
     void delete(UUID id);
     void setPayed(UUID orderid);
