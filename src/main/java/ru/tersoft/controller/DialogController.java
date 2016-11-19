@@ -9,9 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.tersoft.entity.Answer;
 import ru.tersoft.entity.Dialog;
-import ru.tersoft.entity.Question;
+import ru.tersoft.entity.Message;
 import ru.tersoft.service.DialogService;
 
 import javax.annotation.Resource;
@@ -40,9 +39,9 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> startDialog(@RequestParam UUID userid, @RequestBody Question question) {
-        if(question != null) {
-            Dialog dialog = dialogService.start(question, userid);
+    public ResponseEntity<Dialog> startDialog(@RequestBody Message message) {
+        if(message != null) {
+            Dialog dialog = dialogService.start(message);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -52,9 +51,9 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postQuestion(@PathVariable("dialogid") UUID dialogid, @RequestBody Question question) {
-        if(question != null) {
-            Dialog dialog = dialogService.addQuestion(dialogid, question);
+    public ResponseEntity<Dialog> postQuestion(@PathVariable("dialogid") UUID dialogid, @RequestBody Message message) {
+        if(message != null) {
+            Dialog dialog = dialogService.addQuestion(dialogid, message);
             if(dialog != null)
                 return new ResponseEntity<>(dialog, HttpStatus.OK);
             else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -67,9 +66,9 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postAnswer(@RequestParam UUID dialogid, @RequestBody Answer answer, @RequestParam(required = false) Boolean closed) {
-        if(answer != null) {
-            Dialog dialog = dialogService.addAnswer(dialogid, answer, closed);
+    public ResponseEntity<Dialog> postAnswer(@RequestParam UUID dialogid, @RequestBody Message message, @RequestParam(required = false) Boolean closed) {
+        if(message != null) {
+            Dialog dialog = dialogService.addAnswer(dialogid, message, closed);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

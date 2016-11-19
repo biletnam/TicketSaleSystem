@@ -5,13 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tersoft.entity.Answer;
 import ru.tersoft.entity.Dialog;
-import ru.tersoft.entity.Question;
+import ru.tersoft.entity.Message;
 import ru.tersoft.repository.AccountRepository;
-import ru.tersoft.repository.AnswerRepository;
 import ru.tersoft.repository.DialogRepository;
-import ru.tersoft.repository.QuestionRepository;
+import ru.tersoft.repository.MessageRepository;
 import ru.tersoft.service.DialogService;
 
 import java.util.ArrayList;
@@ -23,15 +21,13 @@ import java.util.UUID;
 public class DialogServiceImpl implements DialogService {
     private final DialogRepository dialogRepository;
     private final AccountRepository accountRepository;
-    private final AnswerRepository answerRepository;
-    private final QuestionRepository questionRepository;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public DialogServiceImpl(DialogRepository dialogRepository, AccountRepository accountRepository, AnswerRepository answerRepository, QuestionRepository questionRepository) {
+    public DialogServiceImpl(DialogRepository dialogRepository, AccountRepository accountRepository, MessageRepository messageRepository) {
         this.dialogRepository = dialogRepository;
         this.accountRepository = accountRepository;
-        this.answerRepository = answerRepository;
-        this.questionRepository = questionRepository;
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -40,39 +36,43 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public Dialog get(UUID id) {
+    public Dialog getById(UUID id) {
         return dialogRepository.findOne(id);
     }
 
     @Override
-    public Iterable<Dialog> getByUser(UUID userid) {
-        return dialogRepository.findByUser(accountRepository.findOne(userid));
+    public Iterable<Dialog> getByAnswered(Boolean answered) {
+        return dialogRepository.findByAnswered(answered);
     }
 
     @Override
-    public Dialog start(Question question, UUID userid) {
-        Question addedQuestion = questionRepository.saveAndFlush(question);
+    public Dialog start(Message message) {
+        message.setType("question");
+        message.setUser(accountRepository.findOne(message.getUser().getId()));
+        Message addedMessage = messageRepository.saveAndFlush(message);
         Dialog dialog = new Dialog();
-        List<Question> questions = new ArrayList<>();
-        questions.add(addedQuestion);
+        List<Message> messages = new ArrayList<>();
+        messages.add(addedMessage);
         dialog.setClosed(false);
-        dialog.setQuestions(questions);
-        dialog.setUser(accountRepository.findOne(userid));
+        dialog.setAnswered(false);
+        dialog.setMessages(messages);
         dialog = dialogRepository.saveAndFlush(dialog);
-        addedQuestion.setDialog(dialog);
-        questionRepository.saveAndFlush(addedQuestion);
+        addedMessage.setDialog(dialog);
+        messageRepository.saveAndFlush(addedMessage);
         return dialog;
     }
 
     @Override
-    public Dialog addAnswer(UUID dialogid, Answer answer, Boolean closed) {
+    public Dialog addAnswer(UUID dialogid, Message message, Boolean closed) {
         Dialog dialog = dialogRepository.findOne(dialogid);
-        answer.setDialog(dialog);
-        answer.setAdmin(accountRepository.findOne(answer.getAdmin().getId()));
-        Answer addedAnswer = answerRepository.saveAndFlush(answer);
-        List<Answer> answers = dialog.getAnswers();
-        answers.add(addedAnswer);
-        dialog.setAnswers(answers);
+        message.setDialog(dialog);
+        message.setType("answer");
+        message.setUser(accountRepository.findOne(message.getUser().getId()));
+        Message addedMessage = messageRepository.saveAndFlush(message);
+        List<Message> messages = dialog.getMessages();
+        messages.add(addedMessage);
+        dialog.setMessages(messages);
+        dialog.setAnswered(true);
         if(closed != null) {
             if(closed) dialog.setClosed(true);
         }
@@ -80,14 +80,17 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public Dialog addQuestion(UUID dialogid, Question question) {
+    public Dialog addQuestion(UUID dialogid, Message message) {
         Dialog dialog = dialogRepository.findOne(dialogid);
         if(dialog.getClosed()) return null;
-        question.setDialog(dialog);
-        Question addedQuestion = questionRepository.saveAndFlush(question);
-        List<Question> questions = dialog.getQuestions();
-        questions.add(addedQuestion);
-        dialog.setQuestions(questions);
+        message.setDialog(dialog);
+        message.setUser(accountRepository.findOne(message.getUser().getId()));
+        message.setType("question");
+        Message addedMessage = messageRepository.saveAndFlush(message);
+        List<Message> messages = dialog.getMessages();
+        messages.add(addedMessage);
+        dialog.setMessages(messages);
+        dialog.setAnswered(false);
         return dialogRepository.saveAndFlush(dialog);
     }
 

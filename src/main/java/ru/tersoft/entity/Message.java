@@ -2,6 +2,7 @@ package ru.tersoft.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -9,20 +10,24 @@ import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "answers")
-@ApiModel(value = "Answer")
-public class Answer implements Serializable {
+@Table(name = "messages")
+@ApiModel(value = "Message")
+public class Message {
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Type(type="uuid-char")
     private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "user", nullable = false)
+    @ApiModelProperty(value = "user", required = true)
+    private Account user;
 
     @Column(name = "date", nullable = false)
     @ApiModelProperty(value = "date", required = true)
@@ -35,10 +40,10 @@ public class Answer implements Serializable {
     @ApiModelProperty(value = "text", required = true)
     private String text;
 
-    @ManyToOne
-    @JoinColumn(name = "admin", nullable = false)
-    @ApiModelProperty(value = "admin", required = true)
-    private Account admin;
+    @Column(name = "type")
+    @ApiModelProperty(value = "type")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String type;
 
     @ManyToOne (cascade=CascadeType.ALL)
     @JsonIgnore
@@ -50,6 +55,14 @@ public class Answer implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public Account getUser() {
+        return user;
+    }
+
+    public void setUser(Account user) {
+        this.user = user;
     }
 
     public Date getDate() {
@@ -68,12 +81,12 @@ public class Answer implements Serializable {
         this.text = text;
     }
 
-    public Account getAdmin() {
-        return admin;
+    public String getType() {
+        return type;
     }
 
-    public void setAdmin(Account admin) {
-        this.admin = admin;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Dialog getDialog() {

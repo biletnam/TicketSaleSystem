@@ -1,5 +1,6 @@
 package ru.tersoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,20 +23,15 @@ public class Dialog implements Serializable {
     private UUID id;
 
     @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
-    @ApiModelProperty(value = "questions", required = true)
-    private List<Question> questions;
-
-    @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
-    @ApiModelProperty(value = "answers")
-    private List<Answer> answers;
-
-    @ManyToOne
-    @JoinColumn(name = "user", nullable = false)
-    @ApiModelProperty(value = "user", required = true)
-    private Account user;
+    @ApiModelProperty(value = "messages", required = true)
+    private List<Message> messages;
 
     @Column(name = "closed")
     private Boolean closed;
+
+    @Column(name = "answered")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Boolean answered;
 
     public UUID getId() {
         return id;
@@ -43,22 +39,6 @@ public class Dialog implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
-    public Account getUser() {
-        return user;
-    }
-
-    public void setUser(Account user) {
-        this.user = user;
     }
 
     public Boolean getClosed() {
@@ -69,11 +49,19 @@ public class Dialog implements Serializable {
         this.closed = closed;
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
+    public Boolean getAnswered() {
+        return answered;
     }
 
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
+    public void setAnswered(Boolean answered) {
+        this.answered = answered;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }
