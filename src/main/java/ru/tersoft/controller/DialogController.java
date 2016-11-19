@@ -47,14 +47,29 @@ public class DialogController {
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/answers/", method = RequestMethod.POST)
-    @ApiOperation(value = "Post new admin answer")
+    @RequestMapping(value = "/{dialogid}", method = RequestMethod.POST)
+    @ApiOperation(value = "Post new user question")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postAnswer(@RequestParam UUID dialogid, @RequestBody Answer answer) {
+    public ResponseEntity<Dialog> postQuestion(@PathVariable("dialogid") UUID dialogid, @RequestBody Question question) {
+        if(question != null) {
+            Dialog dialog = dialogService.addQuestion(dialogid, question);
+            if(dialog != null)
+                return new ResponseEntity<>(dialog, HttpStatus.OK);
+            else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "/answers/", method = RequestMethod.POST)
+    @ApiOperation(value = "Post new admin answer", notes = "Admin access required")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public ResponseEntity<Dialog> postAnswer(@RequestParam UUID dialogid, @RequestBody Answer answer, @RequestParam(required = false) Boolean closed) {
         if(answer != null) {
-            Dialog dialog = dialogService.addAnswer(dialogid, answer);
+            Dialog dialog = dialogService.addAnswer(dialogid, answer, closed);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

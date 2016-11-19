@@ -25,6 +25,10 @@ public class Dialog implements Serializable {
     @ApiModelProperty(value = "questions", required = true)
     private List<Question> questions;
 
+    @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
+    @ApiModelProperty(value = "answers")
+    private List<Answer> answers;
+
     @ManyToOne
     @JoinColumn(name = "user", nullable = false)
     @ApiModelProperty(value = "user", required = true)
@@ -63,5 +67,13 @@ public class Dialog implements Serializable {
 
     public void setClosed(Boolean closed) {
         this.closed = closed;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 }

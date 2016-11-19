@@ -1,6 +1,7 @@
 package ru.tersoft.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,8 +26,8 @@ public class Answer implements Serializable {
 
     @Column(name = "date", nullable = false)
     @ApiModelProperty(value = "date", required = true)
-    @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
@@ -38,6 +39,10 @@ public class Answer implements Serializable {
     @JoinColumn(name = "admin", nullable = false)
     @ApiModelProperty(value = "admin", required = true)
     private Account admin;
+
+    @ManyToOne (cascade=CascadeType.ALL)
+    @JsonIgnore
+    private Dialog dialog;
 
     public UUID getId() {
         return id;
@@ -69,5 +74,13 @@ public class Answer implements Serializable {
 
     public void setAdmin(Account admin) {
         this.admin = admin;
+    }
+
+    public Dialog getDialog() {
+        return dialog;
+    }
+
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 }

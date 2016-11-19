@@ -24,15 +24,10 @@ public class Question implements Serializable {
     @Type(type="uuid-char")
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "answer")
-    @ApiModelProperty(value = "answer")
-    private Answer answer;
-
     @Column(name = "date", nullable = false)
     @ApiModelProperty(value = "date", required = true)
-    @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
@@ -66,15 +61,6 @@ public class Question implements Serializable {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    @JsonIgnore
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
     }
 
     public Dialog getDialog() {

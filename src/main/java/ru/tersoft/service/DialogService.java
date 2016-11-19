@@ -12,6 +12,7 @@ public interface DialogService {
     Dialog get(UUID id);
     Iterable<Dialog> getByUser(UUID userid);
     Dialog start(Question question, UUID userid);
-    Dialog addAnswer(UUID dialogid, Answer answer);
+    Dialog addAnswer(UUID dialogid, Answer answer, Boolean closed);
+    Dialog addQuestion(UUID dialogid, Question question);
     void delete(UUID id);
 }

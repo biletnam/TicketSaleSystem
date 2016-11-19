@@ -65,12 +65,29 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public Dialog addAnswer(UUID dialogid, Answer answer) {
+    public Dialog addAnswer(UUID dialogid, Answer answer, Boolean closed) {
         Dialog dialog = dialogRepository.findOne(dialogid);
+        answer.setDialog(dialog);
+        answer.setAdmin(accountRepository.findOne(answer.getAdmin().getId()));
         Answer addedAnswer = answerRepository.saveAndFlush(answer);
-        Question question = dialog.getQuestions().get(dialog.getQuestions().size()-1);
-        question.setAnswer(addedAnswer);
-        questionRepository.saveAndFlush(question);
+        List<Answer> answers = dialog.getAnswers();
+        answers.add(addedAnswer);
+        dialog.setAnswers(answers);
+        if(closed != null) {
+            if(closed) dialog.setClosed(true);
+        }
+        return dialogRepository.saveAndFlush(dialog);
+    }
+
+    @Override
+    public Dialog addQuestion(UUID dialogid, Question question) {
+        Dialog dialog = dialogRepository.findOne(dialogid);
+        if(dialog.getClosed()) return null;
+        question.setDialog(dialog);
+        Question addedQuestion = questionRepository.saveAndFlush(question);
+        List<Question> questions = dialog.getQuestions();
+        questions.add(addedQuestion);
+        dialog.setQuestions(questions);
         return dialogRepository.saveAndFlush(dialog);
     }
 
