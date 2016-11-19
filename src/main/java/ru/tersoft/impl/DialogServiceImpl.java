@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tersoft.entity.Account;
 import ru.tersoft.entity.Dialog;
 import ru.tersoft.entity.Message;
 import ru.tersoft.repository.AccountRepository;
@@ -41,8 +42,14 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public Iterable<Dialog> getByAnswered(Boolean answered) {
-        return dialogRepository.findByAnswered(answered);
+    public Page<Dialog> getByAnswered(int page, int limit) {
+        return dialogRepository.findByAnswered(new PageRequest(page, limit));
+    }
+
+    @Override
+    public Page<Dialog> getByUser(UUID userid, int page, int limit) {
+        Account account = accountRepository.findOne(userid);
+        return dialogRepository.findByUser(account, new PageRequest(page, limit));
     }
 
     @Override
@@ -92,6 +99,13 @@ public class DialogServiceImpl implements DialogService {
         dialog.setMessages(messages);
         dialog.setAnswered(false);
         return dialogRepository.saveAndFlush(dialog);
+    }
+
+    @Override
+    public Dialog setClosed(UUID dialogid, Boolean closed) {
+        Dialog dialog = dialogRepository.findOne(dialogid);
+        dialog.setClosed(closed);
+        return dialog;
     }
 
     @Override

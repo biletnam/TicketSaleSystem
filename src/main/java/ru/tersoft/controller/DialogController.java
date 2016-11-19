@@ -34,6 +34,37 @@ public class DialogController {
         return dialogService.getAll(pageNum, limit);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "/waiting", method = RequestMethod.GET)
+    @ApiOperation(value = "Get dialogs by answered flag", notes = "Admin access required")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public Page<Dialog> getByAnswered(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+        return dialogService.getByAnswered(pageNum, limit);
+    }
+
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get dialogs by user")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public Page<Dialog> getByUser(@PathVariable("id") UUID userid,
+                                   @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+        return dialogService.getByUser(userid, pageNum, limit);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get dialog by id")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public Dialog getById(@PathVariable("id") UUID dialogid) {
+        return dialogService.getById(dialogid);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Open new dialog")
     @ApiImplicitParams({
@@ -46,12 +77,12 @@ public class DialogController {
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/{dialogid}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/addquestion", method = RequestMethod.POST)
     @ApiOperation(value = "Post new user question")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postQuestion(@PathVariable("dialogid") UUID dialogid, @RequestBody Message message) {
+    public ResponseEntity<Dialog> postQuestion(@PathVariable("id") UUID dialogid, @RequestBody Message message) {
         if(message != null) {
             Dialog dialog = dialogService.addQuestion(dialogid, message);
             if(dialog != null)
@@ -61,15 +92,35 @@ public class DialogController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "/answers/", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/addanswer", method = RequestMethod.POST)
     @ApiOperation(value = "Post new admin answer", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postAnswer(@RequestParam UUID dialogid, @RequestBody Message message, @RequestParam(required = false) Boolean closed) {
+    public ResponseEntity<Dialog> postAnswer(@PathVariable("id") UUID dialogid, @RequestBody Message message, @RequestParam(required = false) Boolean closed) {
         if(message != null) {
             Dialog dialog = dialogService.addAnswer(dialogid, message, closed);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "Open/close dialog")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public ResponseEntity<Dialog> setClosed(@PathVariable("id") UUID dialogid, @RequestParam Boolean closed) {
+        Dialog dialog = dialogService.setClosed(dialogid, closed);
+        return new ResponseEntity<>(dialog, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete dialog")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public ResponseEntity<?> delete(@PathVariable("id") UUID dialogid) {
+        dialogService.delete(dialogid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

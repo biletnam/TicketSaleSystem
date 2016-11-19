@@ -9,9 +9,11 @@ import java.util.UUID;
 public interface DialogService {
     Page<Dialog> getAll(int page, int limit);
     Dialog getById(UUID id);
-    Iterable<Dialog> getByAnswered(Boolean answered);
+    Page<Dialog> getByAnswered(int page, int limit);
+    Page<Dialog> getByUser(UUID userid, int page, int limit);
     Dialog start(Message message);
     Dialog addAnswer(UUID dialogid, Message message, Boolean closed);
     Dialog addQuestion(UUID dialogid, Message message);
+    Dialog setClosed(UUID dialogid, Boolean closed);
     void delete(UUID id);
 }

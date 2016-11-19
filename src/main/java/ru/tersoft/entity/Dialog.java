@@ -24,6 +24,7 @@ public class Dialog implements Serializable {
 
     @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
     @ApiModelProperty(value = "messages", required = true)
+    @OrderBy("date ASC")
     private List<Message> messages;
 
     @Column(name = "closed")
