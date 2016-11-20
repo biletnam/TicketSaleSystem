@@ -29,13 +29,15 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     private final JdbcUserDetailsService userDetailsService;
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
+    private final UserTokenEnhancer tokenEnhancer;
 
     @Autowired
-    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, JdbcUserDetailsService userDetailsService) {
+    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, JdbcUserDetailsService userDetailsService, UserTokenEnhancer tokenEnhancer) {
         this.auth = auth;
         this.passwordEncoder = passwordEncoder;
         this.dataSource = dataSource;
         this.userDetailsService = userDetailsService;
+        this.tokenEnhancer = tokenEnhancer;
     }
 
     @Bean
@@ -58,9 +60,11 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     public void configure(AuthorizationServerEndpointsConfigurer endpoints)
             throws Exception {
         endpoints.authorizationCodeServices(authorizationCodeServices())
-                .authenticationManager(auth).tokenStore(tokenStore())
+                .authenticationManager(auth)
+                .tokenStore(tokenStore())
                 .approvalStoreDisabled()
-                .userDetailsService(userDetailsService);
+                .userDetailsService(userDetailsService)
+                .tokenEnhancer(tokenEnhancer);
     }
 
     @Override
@@ -76,6 +80,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
         DefaultTokenServices tokenServices = new DefaultTokenServices();
         tokenServices.setSupportRefreshToken(true);
         tokenServices.setTokenStore(tokenStore());
+        tokenServices.setTokenEnhancer(tokenEnhancer);
         return tokenServices;
     }
 }

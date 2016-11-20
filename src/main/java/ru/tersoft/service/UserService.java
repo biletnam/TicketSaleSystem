@@ -18,7 +18,7 @@ public class UserService {
         this.sessionFactory = sessionFactory;
     }
 
-    Account findUserByMail(String mail) {
+    public Account findUserByMail(String mail) {
         Query query = sessionFactory.getCurrentSession().createQuery("from Account where mail = '" + mail + "'");
         return (Account) query.list().get(0);
     }

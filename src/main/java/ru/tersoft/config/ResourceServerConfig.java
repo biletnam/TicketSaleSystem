@@ -38,7 +38,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers(GET, "/attractions/main/**").permitAll()
                 .antMatchers(GET, "/images/attractions/**").permitAll()
                 .antMatchers(GET, "/api/**").permitAll()
-                .antMatchers(GET, "/swagger-ui.html").permitAll()
                 .antMatchers(GET, "/webjars/springfox-swagger-ui/**").permitAll()
                 .antMatchers(GET, "/v2/api-docs/**").permitAll()
                 .antMatchers(GET, "/configuration/**").permitAll()
