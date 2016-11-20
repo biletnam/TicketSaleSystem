@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Order;
 import ru.tersoft.entity.Ticket;
 import ru.tersoft.service.OrderService;
+import ru.tersoft.service.UserService;
 
 import javax.annotation.Resource;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,9 @@ import java.util.UUID;
 public class OrderController {
     @Resource(name = "OrderService")
     private OrderService orderService;
+
+    @Resource(name="UserService")
+    private UserService userService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "orders", method = RequestMethod.GET)
@@ -43,7 +48,8 @@ public class OrderController {
         return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get order by account id")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ApiOperation(value = "Get orders by account id", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -52,13 +58,24 @@ public class OrderController {
         return (List<Order>)orderService.getByAccount(id);
     }
 
-    @RequestMapping(value = "orders", method = RequestMethod.POST)
-    @ApiOperation(value = "Create new order")
+    @ApiOperation(value = "Get orders for current user")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Order> add(@RequestBody Order order) {
+    @RequestMapping(value = "orders/user/", method = RequestMethod.GET)
+    public List<Order> getByCurrentAccount(Principal principal) {
+        UUID id = userService.findUserByMail(principal.getName()).getId();
+        return (List<Order>)orderService.getByAccount(id);
+    }
+
+    @RequestMapping(value = "orders", method = RequestMethod.POST)
+    @ApiOperation(value = "Create new order", notes = "You don't need to pass account id here")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public ResponseEntity<Order> add(@RequestBody Order order, Principal principal) {
         if(order != null) {
+            order.setAccount(userService.findUserByMail(principal.getName()));
             Order addedOrder = orderService.add(order);
             return new ResponseEntity<>(addedOrder, HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -8,7 +8,7 @@ import ru.tersoft.entity.Account;
 
 import javax.transaction.Transactional;
 
-@Service
+@Service("UserService")
 @Transactional
 public class UserService {
     private final SessionFactory sessionFactory;
