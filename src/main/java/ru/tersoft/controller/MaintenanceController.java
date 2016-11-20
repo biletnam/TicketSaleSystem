@@ -8,9 +8,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.*;
+import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.entity.Maintenance;
+import ru.tersoft.service.AttractionService;
 import ru.tersoft.service.MaintenanceService;
 
 import javax.annotation.Resource;
@@ -24,25 +25,38 @@ import java.util.UUID;
 public class MaintenanceController {
     @Resource(name = "MaintenanceService")
     private MaintenanceService maintenanceService;
+    @Resource(name = "AttractionService")
+    private AttractionService attractionService;
 
     @RequestMapping(value = "/{attrid}", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of maintenance dates by attraction id")
-    public List<Maintenance> getMaintenances
-            (@PathVariable("attrid") UUID attractionid) {
-        if(attractionid != null) {
-            return (List<Maintenance>) maintenanceService.getAll(attractionid);
+    public ResponseEntity<?> getMaintenances(@PathVariable("attrid") UUID attractionid) {
+        if(attractionService.get(attractionid) == null) {
+            return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                            "Attraction with such id was not found"),
+                            HttpStatus.NOT_FOUND);
         }
-        else throw new RequestRejectedException("You must pass attraction id");
+        if(attractionid != null) {
+            return new ResponseEntity<>((List<Maintenance>)maintenanceService.getAll(attractionid), HttpStatus.OK);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Attraction id was not passed"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/date/{date}", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of maintenance dates by date")
-    public List<Maintenance> getMaintenances
+    public ResponseEntity<?> getMaintenances
             (@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
         if(today != null) {
-            return (List<Maintenance>) maintenanceService.getAll(today);
+            return new ResponseEntity<>((List<Maintenance>)maintenanceService.getAll(today), HttpStatus.OK);
         }
-        else throw new RequestRejectedException("You must pass date");
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Date was not passed"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -51,9 +65,13 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Maintenance> add(@RequestBody Maintenance maintenance) {
+    public ResponseEntity<?> add(@RequestBody Maintenance maintenance) {
         Maintenance addedMaintenance = maintenanceService.add(maintenance);
-        return new ResponseEntity<>(addedMaintenance, HttpStatus.OK);
+        if(addedMaintenance != null) return new ResponseEntity<>(addedMaintenance, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Attraction with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -62,11 +80,19 @@ public class MaintenanceController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit maintenance info", notes = "Admin access required")
-    public ResponseEntity<Maintenance> edit(@RequestBody Maintenance maintenance) {
-        if(maintenance.getId() != null)
-            maintenanceService.edit(maintenance);
-        else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(maintenanceService.get(maintenance.getId()), HttpStatus.OK);
+    public ResponseEntity<?> edit(@RequestBody Maintenance maintenance) {
+        if(maintenance != null) {
+            Boolean isEdited = maintenanceService.edit(maintenance);
+            if(isEdited) return new ResponseEntity<>(maintenanceService.get(maintenance.getId()), HttpStatus.OK);
+            else return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                            "Maintenance with such id was not found"),
+                            HttpStatus.NOT_FOUND);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Passed empty maintenance"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -76,7 +102,11 @@ public class MaintenanceController {
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
-        maintenanceService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Boolean isDeleted = maintenanceService.delete(id);
+        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Maintenance with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 }

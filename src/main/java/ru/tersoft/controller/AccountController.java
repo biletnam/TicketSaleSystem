@@ -4,12 +4,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Account;
+import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.AccountService;
 
 import javax.annotation.Resource;
@@ -35,11 +37,22 @@ public class AccountController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account")
-    public ResponseEntity<Account> add(@RequestBody Account account) {
+    public ResponseEntity<?> add(@RequestBody Account account) {
         if(account != null) {
-            Account addedAccount = accountService.add(account);
-            return new ResponseEntity<>(addedAccount, HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            account.setAdmin(false);
+            try {
+                Account addedAccount = accountService.add(account);
+                return new ResponseEntity<>(addedAccount, HttpStatus.OK);
+            } catch(DataIntegrityViolationException e) {
+                return new ResponseEntity<>
+                        (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                                "E-mail already in use"),
+                                HttpStatus.BAD_REQUEST);
+            }
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Passed empty account"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -49,8 +62,12 @@ public class AccountController {
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
-        accountService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Boolean isDeleted = accountService.delete(id);
+        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -58,19 +75,52 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Get account data by id")
-    public Account get(@PathVariable("id") UUID id) {
-        return accountService.get(id);
+    public ResponseEntity<?> get(@PathVariable("id") UUID id) {
+        Account account = accountService.get(id);
+        if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/mail/{mail}", method = RequestMethod.GET)
+    @ApiOperation(value = "Check user's mail")
+    public ResponseEntity<?> checkMail(@PathVariable("mail") String mail) {
+        Boolean isFree = accountService.checkMail(mail);
+        return new ResponseEntity<>(isFree, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.PUT)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit account data with provided id")
-    public ResponseEntity<Account> edit(@PathVariable("id") UUID id,
-                                        @RequestBody Account account) {
-        account.setId(id);
-        accountService.edit(account);
-        return new ResponseEntity<>(accountService.get(id), HttpStatus.OK);
+    public ResponseEntity<?> edit(@RequestBody Account account) {
+        Boolean isEdited = accountService.edit(account);
+        if(isEdited) return new ResponseEntity<>(accountService.get(account.getId()), HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    @ApiOperation(value = "Set user's admin flag", notes = "Admin access required")
+    public ResponseEntity<?> makeAdmin(@PathVariable("id") UUID id, @RequestParam boolean admin) {
+        Account account = accountService.get(id);
+        if(account != null) {
+            account.setAdmin(admin);
+            accountService.edit(account);
+            return new ResponseEntity<>(account, HttpStatus.OK);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 }

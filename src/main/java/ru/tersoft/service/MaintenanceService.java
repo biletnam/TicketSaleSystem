@@ -10,6 +10,6 @@ public interface MaintenanceService {
     Iterable<Maintenance> getAll(Date today);
     Maintenance get(UUID id);
     Maintenance add(Maintenance maintenance);
-    void delete(UUID id);
-    void edit(Maintenance maintenance);
+    Boolean delete(UUID id);
+    Boolean edit(Maintenance maintenance);
 }

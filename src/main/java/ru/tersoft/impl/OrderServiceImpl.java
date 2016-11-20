@@ -57,40 +57,48 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void delete(UUID id) {
-        orderRepository.delete(id);
+    public Boolean delete(UUID id) {
+        if(orderRepository.findOne(id) != null) {
+            orderRepository.delete(id);
+            return true;
+        } else return false;
     }
 
     @Override
-    public void setPayed(UUID orderid) {
+    public Boolean setPayed(UUID orderid) {
         Order order = orderRepository.findOne(orderid);
-        order.setPayed(true);
-        orderRepository.saveAndFlush(order);
+        if(order != null) {
+            order.setPayed(true);
+            orderRepository.saveAndFlush(order);
+            return true;
+        } else return false;
     }
 
     @Override
-    public void addTickets(UUID orderid, List<Ticket> tickets) {
+    public Boolean addTickets(UUID orderid, List<Ticket> tickets) {
         Order order = orderRepository.findOne(orderid);
-        List<Ticket> savedTickets = order.getTickets();
-        for(int i = 0; i < tickets.size(); i++) {
-            Ticket savedTicket = ticketRepository.saveAndFlush(tickets.get(i));
-            savedTickets.add(savedTicket);
-        }
-        order.setTickets(savedTickets);
-        order = countTotal(order);
-        orderRepository.saveAndFlush(order);
+        if(order != null) {
+            for (int i = 0; i < tickets.size(); i++) {
+                Ticket ticket = tickets.get(i);
+                ticket.setAttraction(attractionRepository.findOne(ticket.getAttraction().getId()));
+                ticket.setOrder(order);
+                ticketRepository.saveAndFlush(ticket);
+            }
+            orderRepository.saveAndFlush(countTotal(order));
+            return true;
+        } else return false;
     }
 
     @Override
-    public void deleteTicket(UUID ticketid) {
+    public Order deleteTicket(UUID ticketid) {
         Ticket ticket = ticketRepository.findOne(ticketid);
-        Order order = ticket.getOrder();
-        List<Ticket> tickets = order.getTickets();
-        tickets.remove(ticket);
-        order.setTickets(tickets);
-        orderRepository.saveAndFlush(order);
-        ticket.setOrder(null);
-        ticketRepository.delete(ticketid);
+        if(ticket != null) {
+            UUID orderid = ticket.getOrder().getId();
+            ticketRepository.delete(ticket);
+            Order order = orderRepository.findOne(orderid);
+            Order savedOrder = orderRepository.saveAndFlush(order);
+            return countTotal(savedOrder);
+        } else return null;
     }
 
     private Order countTotal(Order order) {
@@ -107,8 +115,9 @@ public class OrderServiceImpl implements OrderService {
     private void setOrders(UUID orderid) {
         Order order = orderRepository.findOne(orderid);
         List<Ticket> tickets = order.getTickets();
-        for(int i = 0; i < tickets.size(); i++) { // Avoid ConcurrentModificationException by not using foreach
+        for (int i = 0; i < tickets.size(); i++) { // Avoid ConcurrentModificationException by not using foreach
             Ticket ticket = tickets.get(i);
+            ticket.setAttraction(attractionRepository.findOne(ticket.getAttraction().getId()));
             ticket.setOrder(order);
             ticketRepository.saveAndFlush(ticket);
         }

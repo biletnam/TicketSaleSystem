@@ -1,5 +1,7 @@
 package ru.tersoft.impl;
 
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,17 +12,25 @@ import ru.tersoft.entity.Account;
 import ru.tersoft.repository.AccountRepository;
 import ru.tersoft.service.AccountService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service("AccountService")
 @Transactional
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final SessionFactory sessionFactory;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    public Account findUserByMail(String mail) {
+        Query query = sessionFactory.getCurrentSession().createQuery("from Account where mail = '" + mail + "'");
+        return (Account) query.list().get(0);
+    }
+
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, SessionFactory sessionFactory) {
         this.accountRepository = accountRepository;
+        this.sessionFactory = sessionFactory;
     }
 
     public Page<Account> getAll(int pagenum, int limit) {
@@ -35,32 +45,41 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(account.getPassword());
         account.setPassword(encodedPassword);
         if(account.isEnabled() == null) account.setEnabled(true);
-        if(account.isAdmin() == null) account.setAdmin(false);
         return accountRepository.saveAndFlush(account);
     }
 
-    public void delete(UUID id) {
-       accountRepository.delete(id);
+    public Boolean delete(UUID id) {
+        Account account = accountRepository.findOne(id);
+        if(account == null) return false;
+        else {
+            accountRepository.delete(id);
+            return true;
+        }
     }
 
-    public void edit(Account account) {
+    public Boolean edit(Account account) {
+        if(account == null) return false;
+        if(account.getId() == null) return false;
         Account existingAccount = accountRepository.findOne(account.getId());
-        if(account.getFirstname() != null)
+        if(existingAccount == null) return false;
+        if(account.getFirstname() != null && !account.getFirstname().isEmpty())
             existingAccount.setFirstname(account.getFirstname());
-        if(account.getLastname() != null)
+        if(account.getLastname() != null && !account.getLastname().isEmpty())
             existingAccount.setLastname(account.getLastname());
-        if(account.getMail() != null)
-            existingAccount.setMail(account.getMail());
-        if(account.getPassword() != null)
+        if(account.getPassword() != null && !account.getPassword().isEmpty())
             existingAccount.setPassword(account.getPassword());
         if(account.getBirthdate() != null)
             existingAccount.setBirthdate(account.getBirthdate());
         if(account.isEnabled() != null) {
             existingAccount.setEnabled(account.isEnabled());
         }
-        if(account.isAdmin() != null) {
-            existingAccount.setAdmin(account.isAdmin());
-        }
         accountRepository.save(existingAccount);
+        return true;
+    }
+
+    @Override
+    public Boolean checkMail(String mail) {
+        List<Account> accountList = accountRepository.findByMail(mail);
+        return accountList.size() == 0;
     }
 }

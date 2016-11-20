@@ -1,5 +1,6 @@
 package ru.tersoft.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -33,9 +34,11 @@ public class Attraction implements Serializable {
     private Float price;
 
     @Column(name = "imagepath")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String imagepath;
 
     @Column(name = "smallimagepath")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String smallimagepath;
 
     @Column(name = "maintenance")

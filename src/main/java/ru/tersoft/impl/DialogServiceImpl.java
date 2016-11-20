@@ -109,7 +109,10 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public void delete(UUID id) {
-        dialogRepository.delete(id);
+    public Boolean delete(UUID id) {
+        if(dialogRepository.findOne(id) != null) {
+            dialogRepository.delete(id);
+            return true;
+        } else return false;
     }
 }

@@ -36,7 +36,7 @@ public class Ticket implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date ticketdate;
 
-    @ManyToOne (cascade=CascadeType.ALL)
+    @ManyToOne
     @JsonIgnore
     private Order order;
 

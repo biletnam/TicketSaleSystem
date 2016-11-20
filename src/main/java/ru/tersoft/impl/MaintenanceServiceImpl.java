@@ -42,23 +42,35 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     @Override
     public Maintenance add(Maintenance maintenance) {
-        return maintenanceRepository.saveAndFlush(maintenance);
+        Attraction attraction = attractionRepository.findOne(maintenance.getAttraction().getId());
+        if(attraction != null) {
+            maintenance.setAttraction(attraction);
+            return maintenanceRepository.saveAndFlush(maintenance);
+        }
+        else return null;
     }
 
     @Override
-    public void delete(UUID id) {
-        maintenanceRepository.delete(id);
+    public Boolean delete(UUID id) {
+        if(maintenanceRepository.findOne(id) == null) return false;
+        else {
+            maintenanceRepository.delete(id);
+            return true;
+        }
     }
 
     @Override
-    public void edit(Maintenance maintenance) {
+    public Boolean edit(Maintenance maintenance) {
+        if(maintenance == null) return false;
         Maintenance existingMaintenance = maintenanceRepository.findOne(maintenance.getId());
+        if(existingMaintenance == null) return false;
         if(maintenance.getStartdate() != null)
             existingMaintenance.setStartdate(maintenance.getStartdate());
         if(maintenance.getEnddate() != null)
             existingMaintenance.setEnddate(maintenance.getEnddate());
-        if(maintenance.getReason() != null)
+        if(maintenance.getReason() != null && !maintenance.getReason().isEmpty())
             existingMaintenance.setReason(maintenance.getReason());
         maintenanceRepository.save(existingMaintenance);
+        return true;
     }
 }

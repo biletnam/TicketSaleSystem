@@ -12,8 +12,8 @@ public interface OrderService {
     Order get(UUID id);
     Iterable<Order> getByAccount(UUID orderid);
     Order add(Order order);
-    void delete(UUID id);
-    void setPayed(UUID orderid);
-    void addTickets(UUID orderid, List<Ticket> tickets);
-    void deleteTicket(UUID ticketid);
+    Boolean delete(UUID id);
+    Boolean setPayed(UUID orderid);
+    Boolean addTickets(UUID orderid, List<Ticket> tickets);
+    Order deleteTicket(UUID ticketid);
 }

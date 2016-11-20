@@ -15,5 +15,5 @@ public interface DialogService {
     Dialog addAnswer(UUID dialogid, Message message, Boolean closed);
     Dialog addQuestion(UUID dialogid, Message message);
     Dialog setClosed(UUID dialogid, Boolean closed);
-    void delete(UUID id);
+    Boolean delete(UUID id);
 }

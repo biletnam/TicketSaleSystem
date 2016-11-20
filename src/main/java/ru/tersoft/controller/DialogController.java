@@ -9,10 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.tersoft.entity.Account;
 import ru.tersoft.entity.Dialog;
+import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.entity.Message;
+import ru.tersoft.service.AccountService;
 import ru.tersoft.service.DialogService;
-import ru.tersoft.service.UserService;
 
 import javax.annotation.Resource;
 import java.security.Principal;
@@ -25,8 +27,8 @@ public class DialogController {
     @Resource(name="DialogService")
     private DialogService dialogService;
 
-    @Resource(name="UserService")
-    private UserService userService;
+    @Resource(name="AccountService")
+    private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -56,10 +58,15 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public Page<Dialog> getByUser(@PathVariable("id") UUID userid,
+    public ResponseEntity<?> getByUser(@PathVariable("id") UUID userid,
                                    @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
                                    @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
-        return dialogService.getByUser(userid, pageNum, limit);
+        Account account = accountService.get(userid);
+        if(account != null) return new ResponseEntity<>(dialogService.getByUser(userid, pageNum, limit), HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/user/", method = RequestMethod.GET)
@@ -70,7 +77,7 @@ public class DialogController {
     public Page<Dialog> getByCurrentUser(Principal principal,
                                   @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
-        UUID userid = userService.findUserByMail(principal.getName()).getId();
+        UUID userid = accountService.findUserByMail(principal.getName()).getId();
         return dialogService.getByUser(userid, pageNum, limit);
     }
 
@@ -79,8 +86,13 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public Dialog getById(@PathVariable("id") UUID dialogid) {
-        return dialogService.getById(dialogid);
+    public ResponseEntity<?> getById(@PathVariable("id") UUID dialogid) {
+        Dialog dialog = dialogService.getById(dialogid);
+        if(dialog != null) return new ResponseEntity<>(dialog, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Dialog with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -88,12 +100,15 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> startDialog(@RequestBody Message message, Principal principal) {
+    public ResponseEntity<?> startDialog(@RequestBody Message message, Principal principal) {
         if(message != null) {
-            message.setUser(userService.findUserByMail(principal.getName()));
+            message.setUser(accountService.findUserByMail(principal.getName()));
             Dialog dialog = dialogService.start(message);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Passed empty message"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/{id}/addquestion", method = RequestMethod.POST)
@@ -101,14 +116,26 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postQuestion(@PathVariable("id") UUID dialogid, @RequestBody Message message, Principal principal) {
-        if(message != null) {
-            message.setUser(userService.findUserByMail(principal.getName()));
-            Dialog dialog = dialogService.addQuestion(dialogid, message);
-            if(dialog != null)
-                return new ResponseEntity<>(dialog, HttpStatus.OK);
-            else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> postQuestion(@PathVariable("id") UUID dialogid, @RequestBody Message message, Principal principal) {
+        Dialog dialog = dialogService.getById(dialogid);
+        if(dialog != null) {
+            if (message != null) {
+                message.setUser(accountService.findUserByMail(principal.getName()));
+                dialog = dialogService.addQuestion(dialogid, message);
+                if (dialog != null)
+                    return new ResponseEntity<>(dialog, HttpStatus.OK);
+                else return new ResponseEntity<>
+                        (new ErrorResponse(Long.parseLong(HttpStatus.LOCKED.toString()),
+                                "Such dialog was closed"),
+                                HttpStatus.LOCKED);
+            } else return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                            "Passed empty message"),
+                            HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Dialog with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -117,12 +144,21 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> postAnswer(@PathVariable("id") UUID dialogid, @RequestBody Message message, @RequestParam(required = false) Boolean closed, Principal principal) {
-        if(message != null) {
-            message.setUser(userService.findUserByMail(principal.getName()));
-            Dialog dialog = dialogService.addAnswer(dialogid, message, closed);
-            return new ResponseEntity<>(dialog, HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> postAnswer(@PathVariable("id") UUID dialogid, @RequestBody Message message, @RequestParam(required = false) Boolean closed, Principal principal) {
+        Dialog dialog = dialogService.getById(dialogid);
+        if(dialog != null) {
+            if (message != null) {
+                message.setUser(accountService.findUserByMail(principal.getName()));
+                dialog = dialogService.addAnswer(dialogid, message, closed);
+                return new ResponseEntity<>(dialog, HttpStatus.OK);
+            } else return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                            "Passed empty message"),
+                            HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Dialog with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
@@ -130,9 +166,15 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Dialog> setClosed(@PathVariable("id") UUID dialogid, @RequestParam Boolean closed) {
-        Dialog dialog = dialogService.setClosed(dialogid, closed);
-        return new ResponseEntity<>(dialog, HttpStatus.OK);
+    public ResponseEntity<?> setClosed(@PathVariable("id") UUID dialogid, @RequestParam Boolean closed) {
+        Dialog dialog = dialogService.getById(dialogid);
+        if(dialog != null) {
+            dialog = dialogService.setClosed(dialogid, closed);
+            return new ResponseEntity<>(dialog, HttpStatus.OK);
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Dialog with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -141,7 +183,12 @@ public class DialogController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> delete(@PathVariable("id") UUID dialogid) {
-        dialogService.delete(dialogid);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Boolean isDeleted = dialogService.delete(dialogid);
+        if(isDeleted)
+            return new ResponseEntity<>(HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Dialog with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 }

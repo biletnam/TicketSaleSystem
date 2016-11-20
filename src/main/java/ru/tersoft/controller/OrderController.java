@@ -9,10 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.tersoft.entity.Account;
+import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.entity.Order;
 import ru.tersoft.entity.Ticket;
+import ru.tersoft.service.AccountService;
 import ru.tersoft.service.OrderService;
-import ru.tersoft.service.UserService;
 
 import javax.annotation.Resource;
 import java.security.Principal;
@@ -24,9 +26,8 @@ import java.util.UUID;
 public class OrderController {
     @Resource(name = "OrderService")
     private OrderService orderService;
-
-    @Resource(name="UserService")
-    private UserService userService;
+    @Resource(name="AccountService")
+    private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "orders", method = RequestMethod.GET)
@@ -44,8 +45,13 @@ public class OrderController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "orders/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Order> get(@PathVariable("id") UUID id) {
-        return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
+    public ResponseEntity<?> get(@PathVariable("id") UUID id) {
+        Order order = orderService.get(id);
+        if(order != null) return new ResponseEntity<>(order, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Order with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -54,8 +60,13 @@ public class OrderController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "orders/user/{id}", method = RequestMethod.GET)
-    public List<Order> getByAccount(@PathVariable("id") UUID id) {
-        return (List<Order>)orderService.getByAccount(id);
+    public ResponseEntity<?> getByAccount(@PathVariable("id") UUID id) {
+        Account account = accountService.get(id);
+        if(account != null) return new ResponseEntity<>((List<Order>)orderService.getByAccount(id), HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Order with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @ApiOperation(value = "Get orders for current user")
@@ -64,7 +75,7 @@ public class OrderController {
     })
     @RequestMapping(value = "orders/user/", method = RequestMethod.GET)
     public List<Order> getByCurrentAccount(Principal principal) {
-        UUID id = userService.findUserByMail(principal.getName()).getId();
+        UUID id = accountService.findUserByMail(principal.getName()).getId();
         return (List<Order>)orderService.getByAccount(id);
     }
 
@@ -73,12 +84,15 @@ public class OrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<Order> add(@RequestBody Order order, Principal principal) {
+    public ResponseEntity<?> add(@RequestBody Order order, Principal principal) {
         if(order != null) {
-            order.setAccount(userService.findUserByMail(principal.getName()));
+            order.setAccount(accountService.findUserByMail(principal.getName()));
             Order addedOrder = orderService.add(order);
             return new ResponseEntity<>(addedOrder, HttpStatus.OK);
-        } else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Passed empty order"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @ApiOperation(value = "Delete order")
@@ -87,18 +101,37 @@ public class OrderController {
     })
     @RequestMapping(value = "orders/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
-        orderService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Order order = orderService.get(id);
+        if(order != null) {
+            orderService.delete(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Order with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @ApiOperation(value = "Add tickets to existing order")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @RequestMapping(value = "tickets/add/{orderid}", method = RequestMethod.POST)
-    public ResponseEntity<Order> addTicket(@PathVariable("orderid") UUID id, @RequestBody List<Ticket> tickets) {
-        orderService.addTickets(id, tickets);
-        return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
+    @RequestMapping(value = "orders/{id}/addtickets", method = RequestMethod.POST)
+    public ResponseEntity<?> addTicket(@PathVariable("id") UUID id, @RequestBody List<Ticket> tickets) {
+        if(tickets.size() > 0) {
+            Boolean isAdded = orderService.addTickets(id, tickets);
+            if(isAdded)
+                return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
+            else return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                            "Order with such id was not found"),
+                            HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                            "Passed empty ticket array"),
+                            HttpStatus.BAD_REQUEST);
+        }
     }
 
     @ApiOperation(value = "Set order as payed")
@@ -106,9 +139,13 @@ public class OrderController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "orders/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Order> setPayed(@PathVariable("id") UUID id) {
-        orderService.setPayed(id);
-        return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
+    public ResponseEntity<?> setPayed(@PathVariable("id") UUID id) {
+        Boolean isSet = orderService.setPayed(id);
+        if(isSet) return new ResponseEntity<>(orderService.get(id), HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Order with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 
     @ApiOperation(value = "Delete ticket")
@@ -117,7 +154,11 @@ public class OrderController {
     })
     @RequestMapping(value = "tickets/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteTicket(@PathVariable("id") UUID id) {
-        orderService.deleteTicket(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Order order = orderService.deleteTicket(id);
+        if(order != null) return new ResponseEntity<>(order, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Ticket with such id was not found"),
+                        HttpStatus.NOT_FOUND);
     }
 }
