@@ -22,15 +22,15 @@ public class Attraction implements Serializable {
     private UUID id;
 
     @Column(name = "name", nullable = false)
-    @ApiModelProperty(value = "name", required = true)
+    @ApiModelProperty(required = true)
     private String name;
 
     @Column(name = "description", columnDefinition="TEXT", nullable = false)
-    @ApiModelProperty(value = "description", required = true)
+    @ApiModelProperty(required = true)
     private String description;
 
     @Column(name = "price", columnDefinition = "decimal(19,4)", nullable = false)
-    @ApiModelProperty(value = "price", required = true)
+    @ApiModelProperty(required = true)
     private Float price;
 
     @Column(name = "imagepath")

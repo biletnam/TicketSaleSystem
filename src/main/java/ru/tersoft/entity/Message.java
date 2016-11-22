@@ -26,22 +26,21 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "user", nullable = false)
-    @ApiModelProperty(value = "user", required = true)
+    @ApiModelProperty(required = true)
     private Account user;
 
     @Column(name = "date", nullable = false)
-    @ApiModelProperty(value = "date", required = true)
+    @ApiModelProperty(required = true, example = "1970-01-01 15:00:10")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     @Column(name = "text", columnDefinition="TEXT", nullable = false)
-    @ApiModelProperty(value = "text", required = true)
+    @ApiModelProperty(required = true)
     private String text;
 
     @Column(name = "type")
-    @ApiModelProperty(value = "type")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String type;
 

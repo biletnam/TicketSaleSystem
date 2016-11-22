@@ -82,7 +82,7 @@ public class DialogController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get dialog by id")
+    @ApiOperation(value = "Get dialog by id", response = Dialog.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -96,7 +96,7 @@ public class DialogController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Open new dialog", notes = "You don't need to pass account id here")
+    @ApiOperation(value = "Open new dialog", notes = "You don't need to pass account id here", response = Dialog.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -112,7 +112,7 @@ public class DialogController {
     }
 
     @RequestMapping(value = "/{id}/addquestion", method = RequestMethod.POST)
-    @ApiOperation(value = "Post new user question", notes = "You don't need to pass account id here")
+    @ApiOperation(value = "Post new user question", notes = "You don't need to pass account id here", response = Dialog.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -140,7 +140,7 @@ public class DialogController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/{id}/addanswer", method = RequestMethod.POST)
-    @ApiOperation(value = "Post new admin answer", notes = "Admin access required / You don't need to pass account id here")
+    @ApiOperation(value = "Post new admin answer", notes = "Admin access required / You don't need to pass account id here", response = Dialog.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -162,7 +162,7 @@ public class DialogController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    @ApiOperation(value = "Open/close dialog")
+    @ApiOperation(value = "Open/close dialog", response = Dialog.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })

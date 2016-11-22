@@ -26,11 +26,11 @@ public class Ticket implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "attraction", nullable = false)
-    @ApiModelProperty(value = "attraction", required = true)
+    @ApiModelProperty(required = true)
     private Attraction attraction;
 
     @Column(name = "ticketdate", columnDefinition = "DATE", nullable = false)
-    @ApiModelProperty(value = "ticketdate", required = true)
+    @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)

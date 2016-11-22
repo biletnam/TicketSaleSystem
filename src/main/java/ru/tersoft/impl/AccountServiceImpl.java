@@ -1,6 +1,5 @@
 package ru.tersoft.impl;
 
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +22,13 @@ public class AccountServiceImpl implements AccountService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Account findUserByMail(String mail) {
-        Query query = sessionFactory.getCurrentSession().createQuery("from Account where mail = '" + mail + "'");
-        return (Account) query.list().get(0);
+        List<Account> accounts = accountRepository.findByMail(mail);
+        if(accounts.size() != 0) {
+            return accounts.get(0);
+        }
+        else {
+            return null;
+        }
     }
 
     @Autowired

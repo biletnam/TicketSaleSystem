@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.provider.code.AuthorizationCodeServic
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
-import ru.tersoft.service.JdbcUserDetailsService;
+import ru.tersoft.service.DetailsService;
 
 import javax.sql.DataSource;
 
@@ -26,13 +26,13 @@ import javax.sql.DataSource;
 @ComponentScan({ "ru.tersoft" })
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager auth;
-    private final JdbcUserDetailsService userDetailsService;
+    private final DetailsService userDetailsService;
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
     private final UserTokenEnhancer tokenEnhancer;
 
     @Autowired
-    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, JdbcUserDetailsService userDetailsService, UserTokenEnhancer tokenEnhancer) {
+    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, DetailsService userDetailsService, UserTokenEnhancer tokenEnhancer) {
         this.auth = auth;
         this.passwordEncoder = passwordEncoder;
         this.dataSource = dataSource;

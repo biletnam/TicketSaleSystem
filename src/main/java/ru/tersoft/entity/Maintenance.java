@@ -25,25 +25,24 @@ public class Maintenance implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "attraction", nullable = false)
-    @ApiModelProperty(value = "attraction", required = true)
+    @ApiModelProperty(required = true)
     private Attraction attraction;
 
     @Column(name = "startdate", columnDefinition="DATE", nullable = false)
-    @ApiModelProperty(value = "startdate", required = true)
+    @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone = "UTC")
     @Temporal(TemporalType.DATE)
     private Date startdate;
 
     @Column(name = "enddate", columnDefinition="DATE", nullable = false)
-    @ApiModelProperty(value = "enddate", required = true)
+    @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date enddate;
 
     @Column(name = "reason", columnDefinition="TEXT")
-    @ApiModelProperty(value = "reason")
     private String reason;
 
     public Attraction getAttraction() {

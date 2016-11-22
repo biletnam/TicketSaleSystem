@@ -61,7 +61,7 @@ public class MaintenanceController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Add new maintenance period", notes = "Admin access required")
+    @ApiOperation(value = "Add new maintenance period", notes = "Admin access required", response = Maintenance.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -79,7 +79,7 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Edit maintenance info", notes = "Admin access required")
+    @ApiOperation(value = "Edit maintenance info", notes = "Admin access required", response = Maintenance.class)
     public ResponseEntity<?> edit(@RequestBody Maintenance maintenance) {
         if(maintenance != null) {
             Boolean isEdited = maintenanceService.edit(maintenance);

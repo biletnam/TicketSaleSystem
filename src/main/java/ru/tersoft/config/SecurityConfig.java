@@ -9,17 +9,17 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.tersoft.service.JdbcUserDetailsService;
+import ru.tersoft.service.DetailsService;
 
 @Configuration
 @EnableWebSecurity
 @ComponentScan({ "ru.tersoft" })
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final JdbcUserDetailsService userDetailsService;
+    private final DetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(JdbcUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(DetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }

@@ -1,29 +1,29 @@
-package ru.tersoft.service;
+package ru.tersoft.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.tersoft.entity.Account;
+import ru.tersoft.repository.AccountRepository;
+import ru.tersoft.service.DetailsService;
 
-import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Collection;
+import java.util.List;
 
-@Component
+@Service("DetailsService")
 @Transactional
-public class JdbcUserDetailsService implements UserDetailsService {
-    @Resource(name="AccountService")
-    private final AccountService accountService;
+public class DetailsServiceImpl implements DetailsService {
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public JdbcUserDetailsService(AccountService accountService) {
-        this.accountService = accountService;
+    public DetailsServiceImpl(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -33,14 +33,17 @@ public class JdbcUserDetailsService implements UserDetailsService {
         } catch (UnsupportedEncodingException e) {
             //TODO: Write exception handler
         }
-        Account user = accountService.findUserByMail(username);
-        if (user == null) {
+        List<Account> accounts = accountRepository.findByMail(username);
+        if(accounts.size() != 0) {
+            Account user = accounts.get(0);
+            return new org.springframework.security.core.userdetails.User(user.getMail(),
+                    user.getPassword(),
+                    user.isEnabled(), true, true, true,
+                    getGrantedAuthorities(user));
+        }
+        else {
             throw new UsernameNotFoundException("User " + username + " not found in database.");
         }
-        return new org.springframework.security.core.userdetails.User(user.getMail(),
-                user.getPassword(),
-                user.isEnabled(), true, true, true,
-                getGrantedAuthorities(user));
     }
 
     private Collection<? extends GrantedAuthority> getGrantedAuthorities(Account user) {

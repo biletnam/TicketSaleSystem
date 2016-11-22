@@ -23,7 +23,7 @@ public class Dialog implements Serializable {
     private UUID id;
 
     @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
-    @ApiModelProperty(value = "messages", required = true)
+    @ApiModelProperty(required = true)
     @OrderBy("date ASC")
     private List<Message> messages;
 

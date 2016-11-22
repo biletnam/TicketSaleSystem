@@ -24,25 +24,26 @@ public class Account implements Serializable {
     private UUID id;
 
     @Column(name = "firstname", nullable = false)
-    @ApiModelProperty(value = "firstname", required = true)
+    @ApiModelProperty(required = true)
     private String firstname;
 
     @Column(name = "lastname", nullable = false)
-    @ApiModelProperty(value = "lastname", required = true)
+    @ApiModelProperty(required = true)
     private String lastname;
 
     @Column(name = "mail", nullable = false, unique = true)
-    @ApiModelProperty(value = "mail", required = true)
+    @ApiModelProperty(required = true)
     private String mail;
 
     @Column(name = "password", nullable = false)
-    @ApiModelProperty(value = "password", required = true)
+    @ApiModelProperty(required = true)
     private String password;
 
     @Column(name = "birthdate", columnDefinition = "DATE")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
+    @ApiModelProperty(example = "1970-01-01")
     private Date birthdate;
 
     @Column(name = "enabled")

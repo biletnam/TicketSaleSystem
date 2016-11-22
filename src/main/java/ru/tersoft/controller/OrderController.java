@@ -40,7 +40,7 @@ public class OrderController {
         return orderService.getAll(pageNum, limit);
     }
 
-    @ApiOperation(value = "Get order by id")
+    @ApiOperation(value = "Get order by id", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -80,7 +80,7 @@ public class OrderController {
     }
 
     @RequestMapping(value = "orders", method = RequestMethod.POST)
-    @ApiOperation(value = "Create new order", notes = "You don't need to pass account id here")
+    @ApiOperation(value = "Create new order", notes = "You don't need to pass account id here", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -112,7 +112,7 @@ public class OrderController {
                         HttpStatus.NOT_FOUND);
     }
 
-    @ApiOperation(value = "Add tickets to existing order")
+    @ApiOperation(value = "Add tickets to existing order", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -134,7 +134,7 @@ public class OrderController {
         }
     }
 
-    @ApiOperation(value = "Set order as payed")
+    @ApiOperation(value = "Set order as payed", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -148,7 +148,7 @@ public class OrderController {
                         HttpStatus.NOT_FOUND);
     }
 
-    @ApiOperation(value = "Delete ticket")
+    @ApiOperation(value = "Delete ticket", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })

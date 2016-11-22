@@ -32,7 +32,7 @@ public class AttractionController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Add new attraction", notes = "Admin access required")
+    @ApiOperation(value = "Add new attraction", notes = "Admin access required", response = Attraction.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
@@ -88,7 +88,7 @@ public class AttractionController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get attraction by id")
+    @ApiOperation(value = "Get attraction by id", response = Attraction.class)
     public ResponseEntity<?> get(@PathVariable("id") UUID id) {
         Attraction attraction = attractionService.get(id);
         if(attraction == null) return new ResponseEntity<>
@@ -103,7 +103,7 @@ public class AttractionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Edit attraction info", notes = "Admin access required")
+    @ApiOperation(value = "Edit attraction info", notes = "Admin access required", response = Attraction.class)
     public ResponseEntity<?> edit(@PathVariable("id") UUID id,
                                   @RequestPart(value = "name", required = false) String name,
                                   @RequestPart(value = "description", required = false) String description,

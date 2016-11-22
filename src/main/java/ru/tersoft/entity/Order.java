@@ -26,22 +26,22 @@ public class Order implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "account", nullable = false)
-    @ApiModelProperty(value = "account", required = true)
+    @ApiModelProperty(required = true)
     private Account account;
 
     @OneToMany(mappedBy="order", cascade = CascadeType.ALL)
-    @ApiModelProperty(value = "tickets", required = true)
+    @ApiModelProperty(required = true)
     private List<Ticket> tickets;
 
     @Column(name = "orderdate", columnDefinition = "DATE", nullable = false)
-    @ApiModelProperty(value = "orderdate", required = true)
+    @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date orderdate;
 
     @Column(name = "total", columnDefinition = "decimal(19,4)")
-    @ApiModelProperty(value = "total")
+    @ApiModelProperty(example = "999.99")
     private Float total;
 
     @Column(name = "payed")

@@ -15,6 +15,7 @@ import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.AccountService;
 
 import javax.annotation.Resource;
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -25,7 +26,7 @@ public class AccountController {
     private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
     @ApiOperation(value = "Get all accounts data", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
@@ -36,7 +37,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Create new account")
+    @ApiOperation(value = "Create new account", response = Account.class)
     public ResponseEntity<?> add(@RequestBody Account account) {
         if(account != null) {
             account.setAdmin(false);
@@ -70,12 +71,13 @@ public class AccountController {
                         HttpStatus.NOT_FOUND);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Get account data by id")
-    public ResponseEntity<?> get(@PathVariable("id") UUID id) {
+    @ApiOperation(value = "Get account data by id", notes = "Admin access required", response = Account.class)
+    public ResponseEntity<?> getById(@PathVariable("id") UUID id) {
         Account account = accountService.get(id);
         if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);
         else return new ResponseEntity<>
@@ -84,8 +86,23 @@ public class AccountController {
                         HttpStatus.NOT_FOUND);
     }
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    @ApiOperation(value = "Get account data of current user", response = Account.class)
+    public ResponseEntity<?> get(Principal principal) {
+        UUID userid = accountService.findUserByMail(principal.getName()).getId();
+        Account account = accountService.get(userid);
+        if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Account with such id was not found"),
+                        HttpStatus.NOT_FOUND);
+    }
+
     @RequestMapping(value = "/mail/{mail}", method = RequestMethod.GET)
-    @ApiOperation(value = "Check user's mail")
+    @ApiOperation(value = "Check user's mail", response = Boolean.class)
     public ResponseEntity<?> checkMail(@PathVariable("mail") String mail) {
         Boolean isFree = accountService.checkMail(mail);
         return new ResponseEntity<>(isFree, HttpStatus.OK);
@@ -95,7 +112,7 @@ public class AccountController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Edit account data with provided id")
+    @ApiOperation(value = "Edit account data with provided id", response = Account.class)
     public ResponseEntity<?> edit(@RequestBody Account account) {
         Boolean isEdited = accountService.edit(account);
         if(isEdited) return new ResponseEntity<>(accountService.get(account.getId()), HttpStatus.OK);
@@ -110,7 +127,7 @@ public class AccountController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Set user's admin flag", notes = "Admin access required")
+    @ApiOperation(value = "Set user's admin flag", notes = "Admin access required", response = Account.class)
     public ResponseEntity<?> makeAdmin(@PathVariable("id") UUID id, @RequestParam boolean admin) {
         Account account = accountService.get(id);
         if(account != null) {
