@@ -22,7 +22,7 @@ public class AccountServiceImpl implements AccountService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Account findUserByMail(String mail) {
-        List<Account> accounts = accountRepository.findByMail(mail);
+        List<Account> accounts = (List<Account>)accountRepository.findByMail(mail);
         if(accounts.size() != 0) {
             return accounts.get(0);
         }
@@ -83,7 +83,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Boolean checkMail(String mail) {
-        List<Account> accountList = accountRepository.findByMail(mail);
+        List<Account> accountList = (List<Account>)accountRepository.findByMail(mail);
         return accountList.size() == 0;
     }
 }

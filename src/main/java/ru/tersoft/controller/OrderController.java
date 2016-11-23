@@ -26,7 +26,7 @@ import java.util.UUID;
 public class OrderController {
     @Resource(name = "OrderService")
     private OrderService orderService;
-    @Resource(name="AccountService")
+    @Resource(name = "AccountService")
     private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")

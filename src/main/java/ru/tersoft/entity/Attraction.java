@@ -29,6 +29,10 @@ public class Attraction implements Serializable {
     @ApiModelProperty(required = true)
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "category")
+    private Category category;
+
     @Column(name = "price", columnDefinition = "decimal(19,4)", nullable = false)
     @ApiModelProperty(required = true)
     private Float price;
@@ -98,5 +102,13 @@ public class Attraction implements Serializable {
 
     public void setPrice(Float price) {
         this.price = price;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.tersoft.controller.AttractionController;
 import ru.tersoft.entity.Attraction;
+import ru.tersoft.entity.Category;
 import ru.tersoft.repository.AttractionRepository;
+import ru.tersoft.repository.CategoryRepository;
 import ru.tersoft.service.AttractionService;
 
 import java.io.File;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Transactional
 public class AttractionServiceImpl implements AttractionService {
     private final AttractionRepository attractionRepository;
+    private final CategoryRepository categoryRepository;
 
     @Value("${ticketsale.images-folder}")
     private String imagesLocation;
@@ -31,12 +34,20 @@ public class AttractionServiceImpl implements AttractionService {
     private int imagesWidth;
 
     @Autowired
-    public AttractionServiceImpl(AttractionRepository attractionRepository) {
+    public AttractionServiceImpl(AttractionRepository attractionRepository, CategoryRepository categoryRepository) {
         this.attractionRepository = attractionRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public Iterable<Attraction> getAll() {
         return attractionRepository.findAll();
+    }
+
+    @Override
+    public Iterable<Attraction> getByCategory(UUID id) {
+        Category category = categoryRepository.findOne(id);
+        if(category != null) return attractionRepository.findByCategory(category);
+        else return null;
     }
 
     public Attraction get(UUID id) {
@@ -71,6 +82,8 @@ public class AttractionServiceImpl implements AttractionService {
             existingAttraction.setImagepath(attraction.getImagepath());
         if(attraction.getSmallimagepath() != null)
             existingAttraction.setSmallimagepath(attraction.getSmallimagepath());
+        if(attraction.getCategory() != null)
+            existingAttraction.setCategory(attraction.getCategory());
         if(attraction.getMaintenance() != null)
             existingAttraction.setMaintenance(attraction.getMaintenance());
         attractionRepository.save(existingAttraction);

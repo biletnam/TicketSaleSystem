@@ -10,8 +10,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.tersoft.entity.Attraction;
+import ru.tersoft.entity.Category;
 import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.AttractionService;
+import ru.tersoft.service.CategoryService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -23,11 +25,31 @@ import java.util.UUID;
 public class AttractionController {
     @Resource(name="AttractionService")
     private AttractionService attractionService;
+    @Resource(name="CategoryService")
+    private CategoryService categoryService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of attractions")
     public List<Attraction> getAttractions() {
         return (List<Attraction>)attractionService.getAll();
+    }
+
+    @RequestMapping(value = "/cat/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get list of attractions by category id")
+    public ResponseEntity<?> getByCategory(@PathVariable("id") UUID id) {
+        if(id != null) {
+            if(attractionService.getByCategory(id) == null) {
+                return new ResponseEntity<>
+                        (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                                "Category with such id was not found"),
+                                HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>((List<Attraction>)attractionService.getByCategory(id), HttpStatus.OK);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Category id was not passed"),
+                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -38,10 +60,19 @@ public class AttractionController {
     })
     public ResponseEntity<?> add(@RequestPart(value = "name") String name,
                                  @RequestPart(value = "description") String description,
+                                 @RequestPart(value = "cat", required = false) String cat,
                                  @RequestPart(value = "price") String price,
                                  @RequestPart(value = "maintenance", required = false) Boolean maintenance,
                                  @RequestPart(value = "image") MultipartFile image) {
         Attraction attraction = new Attraction();
+        if(cat != null) {
+            Category category = categoryService.get(UUID.fromString(cat));
+            if (category == null) return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                            "Category with such id was not found"),
+                            HttpStatus.NOT_FOUND);
+            attraction.setCategory(category);
+        }
         attraction.setDescription(description);
         Float floatPrice = null;
         try {
@@ -55,7 +86,8 @@ public class AttractionController {
         }
         attraction.setPrice(floatPrice);
         attraction.setName(name);
-        attraction.setMaintenance(maintenance);
+        if(maintenance != null)
+            attraction.setMaintenance(maintenance);
         if(image != null)
             attraction = attractionService.saveImage(attraction, image);
         else return new ResponseEntity<>
@@ -107,12 +139,23 @@ public class AttractionController {
     public ResponseEntity<?> edit(@PathVariable("id") UUID id,
                                   @RequestPart(value = "name", required = false) String name,
                                   @RequestPart(value = "description", required = false) String description,
+                                  @RequestPart(value = "cat", required = false) String cat,
                                   @RequestPart(value = "price", required = false) String price,
                                   @RequestPart(value = "maintenance", required = false) Boolean maintenance,
                                   @RequestPart(value = "image", required = false) MultipartFile image) {
         Attraction attraction = new Attraction();
         attraction.setId(id);
         attraction.setDescription(description);
+        if(cat != null) {
+            Category category = categoryService.get(UUID.fromString(cat));
+            if (category == null) {
+                return new ResponseEntity<>
+                        (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                                "Category with such id was not found"),
+                                HttpStatus.NOT_FOUND);
+            }
+            attraction.setCategory(category);
+        }
         Float floatPrice = null;
         try {
             if(price != null)

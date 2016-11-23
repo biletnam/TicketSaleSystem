@@ -33,7 +33,7 @@ public class DetailsServiceImpl implements DetailsService {
         } catch (UnsupportedEncodingException e) {
             //TODO: Write exception handler
         }
-        List<Account> accounts = accountRepository.findByMail(username);
+        List<Account> accounts = (List<Account>)accountRepository.findByMail(username);
         if(accounts.size() != 0) {
             Account user = accounts.get(0);
             return new org.springframework.security.core.userdetails.User(user.getMail(),
