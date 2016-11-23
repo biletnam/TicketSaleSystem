@@ -31,8 +31,11 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     @Override
-    public Iterable<Maintenance> getAll(Date today) {
-        return maintenanceRepository.findByDate(today);
+    public Iterable<Maintenance> getByDate(Date today, UUID attractionid) {
+        Attraction attraction = attractionRepository.findOne(attractionid);
+        if(attraction != null) {
+            return maintenanceRepository.findByDate(today, attraction);
+        } else return null;
     }
 
     @Override

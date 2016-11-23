@@ -29,7 +29,7 @@ public class MaintenanceController {
     private AttractionService attractionService;
 
     @RequestMapping(value = "/{attrid}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of maintenance dates by attraction id")
+    @ApiOperation(value = "Get list of maintenance dates")
     public ResponseEntity<?> getMaintenances(@PathVariable("attrid") UUID attractionid) {
         if(attractionService.get(attractionid) == null) {
             return new ResponseEntity<>
@@ -46,16 +46,23 @@ public class MaintenanceController {
                         HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/date/{date}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of maintenance dates by date")
+    @RequestMapping(value = "/{attrid}/{date}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get list of maintenances by date")
     public ResponseEntity<?> getMaintenances
-            (@PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
-        if(today != null) {
-            return new ResponseEntity<>((List<Maintenance>)maintenanceService.getAll(today), HttpStatus.OK);
+            (@PathVariable("attrid") UUID attractionid,
+             @PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
+        if(today != null && attractionid != null) {
+            List<Maintenance> maintenances = (List<Maintenance>)maintenanceService.getByDate(today, attractionid);
+            if(maintenances != null) {
+                return new ResponseEntity<>(maintenances, HttpStatus.OK);
+            } else return new ResponseEntity<>
+                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                            "Attraction with such id was not found"),
+                            HttpStatus.NOT_FOUND);
         }
         else return new ResponseEntity<>
                 (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Date was not passed"),
+                        "Date or attraction id was not passed"),
                         HttpStatus.BAD_REQUEST);
     }
 
