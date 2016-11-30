@@ -145,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
     private String generateCode(UUID ticketid) {
         String id = ticketid.toString();
         String filePath = imagesLocation + "qr/" + id + ".png";
-        int size = 200;
+        int size = 150;
         String fileType = "png";
         File myFile = new File(filePath);
         try {
