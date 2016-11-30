@@ -148,6 +148,23 @@ public class OrderController {
                         HttpStatus.NOT_FOUND);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ApiOperation(value = "Disable ticket", notes = "Admin access required")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    @RequestMapping(value = "tickets/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<?> disableTicket(@PathVariable("id") UUID id) {
+        Boolean isDisabled = orderService.disableTicket(id);
+        if(isDisabled) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
+                        "Ticket with such id was not found"),
+                        HttpStatus.NOT_FOUND);
+    }
+
     @ApiOperation(value = "Delete ticket", response = Order.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),

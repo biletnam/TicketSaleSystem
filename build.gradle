@@ -38,6 +38,7 @@ dependencies {
     compile('io.springfox:springfox-swagger2:2.6.1')
     compile('io.springfox:springfox-swagger-ui:2.6.1')
     compile('com.google.guava:guava:20.0')
+	compile('com.google.zxing:core:3.3.0')
 	compile('mysql:mysql-connector-java')
     compile('commons-dbcp:commons-dbcp')
     compile fileTree(dir: 'lib', include: ['*.jar'])

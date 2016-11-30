@@ -2,6 +2,7 @@ package ru.tersoft.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -36,9 +37,16 @@ public class Ticket implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date ticketdate;
 
+    @Column(name = "code")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String code;
+
     @ManyToOne
     @JsonIgnore
     private Order order;
+
+    @Column(name = "enabled")
+    private Boolean enabled;
 
     public UUID getId() {
         return id;
@@ -70,5 +78,21 @@ public class Ticket implements Serializable {
 
     public void setTicketdate(Date ticketdate) {
         this.ticketdate = ticketdate;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

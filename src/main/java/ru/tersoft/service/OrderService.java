@@ -15,5 +15,6 @@ public interface OrderService {
     Boolean delete(UUID id);
     Boolean setPayed(UUID orderid);
     Boolean addTickets(UUID orderid, List<Ticket> tickets);
+    Boolean disableTicket(UUID ticketid);
     Order deleteTicket(UUID ticketid);
 }
