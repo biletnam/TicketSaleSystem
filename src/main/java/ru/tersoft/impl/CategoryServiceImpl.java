@@ -35,13 +35,8 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Category add(String name) {
-        if(name != null) {
-            Category category = new Category();
-            category.setName(name);
-            return categoryRepository.saveAndFlush(category);
-        }
-        else return null;
+    public Category add(Category category) {
+        return categoryRepository.saveAndFlush(category);
     }
 
     @Override
@@ -62,7 +57,12 @@ public class CategoryServiceImpl implements CategoryService{
     public Boolean edit(Category category) {
         Category existingCategory = categoryRepository.findOne(category.getId());
         if(existingCategory != null) {
-            existingCategory.setName(category.getName());
+            if(category.getName() != null && !category.getName().isEmpty())
+                existingCategory.setName(category.getName());
+            if(category.getMinAge() != null)
+                existingCategory.setMinAge(category.getMinAge());
+            if(category.getMinHeight() != null)
+                existingCategory.setMinHeight(category.getMinHeight());
             categoryRepository.saveAndFlush(existingCategory);
             return true;
         }
