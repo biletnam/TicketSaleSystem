@@ -35,12 +35,11 @@ public class CategoryController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestParam String name) {
-        Category addedCategory = categoryService.add(name);
-        if(addedCategory != null) return new ResponseEntity<>(addedCategory, HttpStatus.OK);
+    public ResponseEntity<?> add(@RequestBody Category category) {
+        if(category != null) return new ResponseEntity<>(categoryService.add(category), HttpStatus.OK);
         else return new ResponseEntity<>
                 (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty category name"),
+                        "Passed empty category"),
                         HttpStatus.BAD_REQUEST);
     }
 

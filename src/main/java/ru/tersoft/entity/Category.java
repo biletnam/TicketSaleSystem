@@ -24,6 +24,12 @@ public class Category implements Serializable {
     @ApiModelProperty(required = true)
     private String name;
 
+    @Column(name = "minage")
+    private Integer minAge;
+
+    @Column(name = "minheight")
+    private Integer minHeight;
+
     public UUID getId() {
         return id;
     }
@@ -38,5 +44,21 @@ public class Category implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getMinAge() {
+        return minAge;
+    }
+
+    public void setMinAge(Integer minAge) {
+        this.minAge = minAge;
+    }
+
+    public Integer getMinHeight() {
+        return minHeight;
+    }
+
+    public void setMinHeight(Integer minHeight) {
+        this.minHeight = minHeight;
     }
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 public interface CategoryService {
     Iterable<Category> getAll();
     Category get(UUID id);
-    Category add(String name);
+    Category add(Category category);
     Boolean delete(UUID id);
     Boolean edit(Category category);
 }
