@@ -53,13 +53,14 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
-    public Dialog start(Message message) {
+    public Dialog start(Message message, String title) {
         message.setType("question");
         message.setUser(accountRepository.findOne(message.getUser().getId()));
         Message addedMessage = messageRepository.saveAndFlush(message);
         Dialog dialog = new Dialog();
         List<Message> messages = new ArrayList<>();
         messages.add(addedMessage);
+        dialog.setTitle(title);
         dialog.setClosed(false);
         dialog.setAnswered(false);
         dialog.setMessages(messages);

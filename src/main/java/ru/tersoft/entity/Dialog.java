@@ -22,6 +22,10 @@ public class Dialog implements Serializable {
     @Type(type="uuid-char")
     private UUID id;
 
+    @Column(name = "title", nullable = false)
+    @ApiModelProperty(required = true)
+    private String title;
+
     @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
     @ApiModelProperty(required = true)
     @OrderBy("date ASC")
@@ -64,5 +68,13 @@ public class Dialog implements Serializable {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

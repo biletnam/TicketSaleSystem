@@ -100,10 +100,10 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> startDialog(@RequestBody Message message, Principal principal) {
-        if(message != null) {
+    public ResponseEntity<?> startDialog(@RequestBody Message message, @RequestParam String title, Principal principal) {
+        if(message != null && title != null && !title.isEmpty()) {
             message.setUser(accountService.findUserByMail(principal.getName()));
-            Dialog dialog = dialogService.start(message);
+            Dialog dialog = dialogService.start(message, title);
             return new ResponseEntity<>(dialog, HttpStatus.OK);
         } else return new ResponseEntity<>
                 (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),

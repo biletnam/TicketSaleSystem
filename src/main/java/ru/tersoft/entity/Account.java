@@ -1,6 +1,7 @@
 package ru.tersoft.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -37,6 +38,7 @@ public class Account implements Serializable {
 
     @Column(name = "password", nullable = false)
     @ApiModelProperty(required = true)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "birthdate", columnDefinition = "DATE")
