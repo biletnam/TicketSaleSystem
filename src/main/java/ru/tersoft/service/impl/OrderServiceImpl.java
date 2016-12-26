@@ -1,4 +1,4 @@
-package ru.tersoft.impl;
+package ru.tersoft.service.impl;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

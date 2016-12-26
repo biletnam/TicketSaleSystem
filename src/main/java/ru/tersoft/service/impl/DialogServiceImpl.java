@@ -1,4 +1,4 @@
-package ru.tersoft.impl;
+package ru.tersoft.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

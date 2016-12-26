@@ -1,4 +1,4 @@
-package ru.tersoft.impl;
+package ru.tersoft.service.impl;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
