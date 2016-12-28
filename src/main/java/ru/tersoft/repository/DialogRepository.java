@@ -10,8 +10,7 @@ import ru.tersoft.entity.Dialog;
 import java.util.UUID;
 
 public interface DialogRepository extends JpaRepository<Dialog, UUID> {
-    @Query("select d from Dialog d where " +
-            "d.answered = false and closed = false")
+    @Query("select d from Dialog d where d.answered = false and closed = false")
     Page<Dialog> findByAnswered(Pageable page);
 
     @Query("select distinct m.dialog from Message m where m.user = ?1")

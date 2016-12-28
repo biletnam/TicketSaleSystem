@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "maintenance")
+@Table(name = "maintenances")
 @ApiModel(value = "Maintenance")
 public class Maintenance implements Serializable {
     @Id

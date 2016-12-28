@@ -44,7 +44,7 @@ public class Message {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String type;
 
-    @ManyToOne (cascade=CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JsonIgnore
     private Dialog dialog;
 

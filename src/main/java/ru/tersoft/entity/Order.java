@@ -29,7 +29,7 @@ public class Order implements Serializable {
     @ApiModelProperty(required = true)
     private Account account;
 
-    @OneToMany(mappedBy="order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @ApiModelProperty(required = true)
     private List<Ticket> tickets;
 

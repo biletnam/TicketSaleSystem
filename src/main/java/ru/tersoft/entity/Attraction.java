@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "attraction")
+@Table(name = "attractions")
 @ApiModel(value = "Attraction")
 public class Attraction implements Serializable {
     @Id

@@ -26,10 +26,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service("OrderService")
 @Transactional
@@ -62,7 +60,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Iterable<Order> getByAccount(UUID accountid) {
-        return orderRepository.findByAccount(accountRepository.findOne(accountid));
+        Calendar minDate = Calendar.getInstance();
+        minDate.add(Calendar.MONTH, -2);
+        return orderRepository.findByAccount(accountRepository.findOne(accountid), minDate.getTime());
     }
 
     @Override

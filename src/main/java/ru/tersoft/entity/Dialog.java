@@ -26,7 +26,7 @@ public class Dialog implements Serializable {
     @ApiModelProperty(required = true)
     private String title;
 
-    @OneToMany(mappedBy="dialog", cascade= CascadeType.ALL)
+    @OneToMany(mappedBy = "dialog", cascade = CascadeType.ALL)
     @ApiModelProperty(required = true)
     @OrderBy("date ASC")
     private List<Message> messages;
