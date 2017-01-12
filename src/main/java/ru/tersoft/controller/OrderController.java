@@ -86,6 +86,10 @@ public class OrderController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> add(@RequestBody Order order, Principal principal) {
+        if(principal == null) return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Wrong or empty access token"),
+                        HttpStatus.BAD_REQUEST);
         if(order != null) {
             order.setAccount(accountService.findUserByMail(principal.getName()));
             Order addedOrder = orderService.add(order);

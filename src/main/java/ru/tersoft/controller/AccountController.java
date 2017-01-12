@@ -92,6 +92,10 @@ public class AccountController {
     })
     @ApiOperation(value = "Get account data of current user", response = Account.class)
     public ResponseEntity<?> get(Principal principal) {
+        if(principal == null) return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Wrong or empty access token"),
+                        HttpStatus.BAD_REQUEST);
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
         Account account = accountService.get(userid);
         if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);

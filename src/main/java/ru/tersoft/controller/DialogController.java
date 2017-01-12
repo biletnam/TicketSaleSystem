@@ -74,11 +74,16 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public Page<Dialog> getByCurrentUser(Principal principal,
+    public ResponseEntity<?> getByCurrentUser(Principal principal,
                                   @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+
+        if(principal == null) return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Wrong or empty access token"),
+                        HttpStatus.BAD_REQUEST);
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
-        return dialogService.getByUser(userid, pageNum, limit);
+        return new ResponseEntity<>(dialogService.getByUser(userid, pageNum, limit), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -101,6 +106,10 @@ public class DialogController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> startDialog(@RequestBody Message message, @RequestParam String title, Principal principal) {
+        if(principal == null) return new ResponseEntity<>
+                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
+                        "Wrong or empty access token"),
+                        HttpStatus.BAD_REQUEST);
         if(message != null && title != null && !title.isEmpty()) {
             message.setUser(accountService.findUserByMail(principal.getName()));
             Dialog dialog = dialogService.start(message, title);
