@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("attractions/cat")
+@RequestMapping("api/attractions/cat")
 @Api(description = "Work with attraction categories", tags = {"Category"})
 public class CategoryController {
     @Resource(name="CategoryService")

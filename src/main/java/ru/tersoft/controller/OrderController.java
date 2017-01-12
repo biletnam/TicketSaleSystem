@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("api/")
 @Api(description = "Work with orders", tags = {"Order"})
 public class OrderController {
     @Resource(name = "OrderService")

@@ -26,12 +26,14 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/api/swagger-resources", "/swagger-resources");
         registry.addRedirectViewController("/api", "/api/swagger-ui.html");
         registry.addRedirectViewController("/api/", "/api/swagger-ui.html");
+        registry.addRedirectViewController("/", "/index.html");
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/api/swagger-ui.html**").addResourceLocations("classpath:/META-INF/resources/swagger-ui.html");
         registry.addResourceHandler("/api/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/public/");
         String prefix = env.getProperty("ticketsale.images-folder-prefix");
         if(prefix != null) {
             registry.addResourceHandler("/images/**")

@@ -19,7 +19,7 @@ import java.security.Principal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("accounts")
+@RequestMapping("api/accounts")
 @Api(description = "Work with user accounts", tags = {"Account"})
 public class AccountController {
     @Resource(name="AccountService")

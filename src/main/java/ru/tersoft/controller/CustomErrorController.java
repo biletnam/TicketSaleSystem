@@ -1,5 +1,6 @@
 package ru.tersoft.controller;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorController;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/error")
+@Api(description = "Error handling", tags = {"Error"})
 public class CustomErrorController implements ErrorController {
 
     private final ErrorAttributes errorAttributes;

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("attractions/main/")
+@RequestMapping("api/attractions/main/")
 @Api(description = "Maintenance settings for attractions", tags = {"Maintenance"})
 public class MaintenanceController {
     @Resource(name = "MaintenanceService")

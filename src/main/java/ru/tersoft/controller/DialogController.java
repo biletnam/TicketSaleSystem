@@ -21,7 +21,7 @@ import java.security.Principal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("dialogs")
+@RequestMapping("api/dialogs")
 @Api(description = "Dialogs between users and administrators", tags = {"Dialog"})
 public class DialogController {
     @Resource(name="DialogService")
