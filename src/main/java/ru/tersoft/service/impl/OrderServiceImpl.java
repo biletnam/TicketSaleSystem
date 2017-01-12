@@ -179,7 +179,7 @@ public class OrderServiceImpl implements OrderService {
         } catch (WriterException | IOException e) {
             e.printStackTrace();
         }
-        return "/images/qr/" + id + ".png";
+        return "/img/qr/" + id + ".png";
     }
 
     private Order countTotal(Order order) {

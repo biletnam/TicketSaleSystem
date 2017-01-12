@@ -49,7 +49,7 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(account.getPassword());
         account.setPassword(encodedPassword);
         int avatarNumber = (account.getFirstname().length() + account.getLastname().length()) % 10;
-        account.setAvatar("/images/avatars/identicon"+avatarNumber+".png");
+        account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
         if(account.isEnabled() == null) account.setEnabled(true);
         return accountRepository.saveAndFlush(account);
     }

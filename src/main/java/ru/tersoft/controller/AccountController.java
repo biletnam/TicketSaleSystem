@@ -105,9 +105,9 @@ public class AccountController {
                         HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/mail/{mail}", method = RequestMethod.GET)
+    @RequestMapping(value = "/check", method = RequestMethod.GET)
     @ApiOperation(value = "Check user's mail", response = Boolean.class)
-    public ResponseEntity<?> checkMail(@PathVariable("mail") String mail) {
+    public ResponseEntity<?> checkMail(@RequestParam("mail") String mail) {
         Boolean isFree = accountService.checkMail(mail);
         return new ResponseEntity<>(isFree, HttpStatus.OK);
     }
