@@ -20,7 +20,7 @@ public class Maintenance implements Serializable {
     @Column(name = "id")
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Type(type="uuid-char")
+    @Type(type = "uuid-char")
     private UUID id;
 
     @ManyToOne
@@ -30,19 +30,19 @@ public class Maintenance implements Serializable {
 
     @Column(name = "startdate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(required = true, example = "1970-01-01")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone = "UTC")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     @Temporal(TemporalType.DATE)
     private Date startdate;
 
     @Column(name = "enddate", columnDefinition="DATE")
     @ApiModelProperty(example = "1970-01-01")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date enddate;
 
-    @Column(name = "reason", columnDefinition="TEXT")
+    @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
 
     public Attraction getAttraction() {

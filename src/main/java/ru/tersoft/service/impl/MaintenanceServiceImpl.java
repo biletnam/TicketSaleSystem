@@ -13,6 +13,7 @@ import ru.tersoft.service.MaintenanceService;
 import ru.tersoft.utils.ResponseFactory;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service("MaintenanceService")
@@ -28,24 +29,15 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     @Override
-    public ResponseEntity<?> getAll(UUID attractionid) {
-        if(attractionid != null) {
-            Attraction attraction = attractionRepository.findOne(attractionid);
-            if (attraction == null)
-                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
-            else
-                return ResponseFactory.createResponse(maintenanceRepository.findByAttraction(attraction));
-        } else {
-            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Attraction id was not passed");
-        }
-    }
-
-    @Override
     public ResponseEntity<?> getByDate(Date today, UUID attractionid) {
         if (today != null && attractionid != null) {
             Attraction attraction = attractionRepository.findOne(attractionid);
             if (attraction != null) {
-                return ResponseFactory.createResponse(maintenanceRepository.findByDate(today, attraction));
+                List<Maintenance> maintenanceList = (List<Maintenance>) maintenanceRepository.findByDate(today, attraction);
+                if(maintenanceList.size() == 0)
+                    return ResponseFactory.createResponse();
+                else
+                    return ResponseFactory.createResponse(maintenanceList.get(0));
             } else {
                 return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
             }
@@ -65,16 +57,16 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         if(attraction != null) {
             maintenance.setAttraction(attraction);
             return ResponseFactory.createResponse(maintenanceRepository.saveAndFlush(maintenance));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
         }
-        else return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
     }
 
     @Override
     public ResponseEntity<?> delete(UUID id) {
         if(maintenanceRepository.findOne(id) == null) {
             return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
-        }
-        else {
+        } else {
             maintenanceRepository.delete(id);
             return ResponseFactory.createResponse();
         }

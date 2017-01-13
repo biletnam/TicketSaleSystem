@@ -22,17 +22,11 @@ public class MaintenanceController {
     @Resource(name = "MaintenanceService")
     private MaintenanceService maintenanceService;
 
-    @RequestMapping(value = "/{attrid}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of maintenance dates")
-    public ResponseEntity<?> getMaintenances(@PathVariable("attrid") UUID attractionid) {
-        return maintenanceService.getAll(attractionid);
-    }
-
-    @RequestMapping(value = "/{attrid}/{date}", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of maintenances by date")
     public ResponseEntity<?> getMaintenances
-            (@PathVariable("attrid") UUID attractionid,
-             @PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
+            (@RequestParam("attr") UUID attractionid,
+             @RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
         return maintenanceService.getByDate(today, attractionid);
     }
 
