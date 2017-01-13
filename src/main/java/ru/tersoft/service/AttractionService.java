@@ -1,16 +1,17 @@
 package ru.tersoft.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
-import ru.tersoft.entity.Attraction;
 
 import java.util.UUID;
 
 public interface AttractionService {
-    Iterable<Attraction> getAll();
-    Iterable<Attraction> getByCategory(UUID id);
-    Attraction get(UUID id);
-    Attraction add(Attraction account);
-    Boolean delete(UUID id);
-    Boolean edit(Attraction account);
-    Attraction saveImage(Attraction attraction, MultipartFile image);
+    ResponseEntity<?> getAll();
+    ResponseEntity<?> getByCategory(UUID id);
+    ResponseEntity<?> get(UUID id);
+    ResponseEntity<?> add(String name, String description, String cat, String price,
+                          Boolean maintenance, MultipartFile image);
+    ResponseEntity<?> delete(UUID id);
+    ResponseEntity<?> edit(UUID id, String name, String description, String cat, String price,
+                 Boolean maintenance, MultipartFile image);
 }

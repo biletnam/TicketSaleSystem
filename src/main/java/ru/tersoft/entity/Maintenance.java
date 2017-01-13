@@ -35,8 +35,8 @@ public class Maintenance implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date startdate;
 
-    @Column(name = "enddate", columnDefinition="DATE", nullable = false)
-    @ApiModelProperty(required = true, example = "1970-01-01")
+    @Column(name = "enddate", columnDefinition="DATE")
+    @ApiModelProperty(example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)

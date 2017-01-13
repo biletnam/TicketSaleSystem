@@ -1,13 +1,14 @@
 package ru.tersoft.service;
 
+import org.springframework.http.ResponseEntity;
 import ru.tersoft.entity.Category;
 
 import java.util.UUID;
 
 public interface CategoryService {
-    Iterable<Category> getAll();
+    ResponseEntity<?> getAll();
     Category get(UUID id);
-    Category add(Category category);
-    Boolean delete(UUID id);
-    Boolean edit(Category category);
+    ResponseEntity<?> add(Category category);
+    ResponseEntity<?> delete(UUID id);
+    ResponseEntity<?> edit(Category category);
 }

@@ -1,19 +1,18 @@
 package ru.tersoft.service;
 
-import org.springframework.data.domain.Page;
-import ru.tersoft.entity.Dialog;
+import org.springframework.http.ResponseEntity;
 import ru.tersoft.entity.Message;
 
 import java.util.UUID;
 
 public interface DialogService {
-    Page<Dialog> getAll(int page, int limit);
-    Dialog getById(UUID id);
-    Page<Dialog> getByAnswered(int page, int limit);
-    Page<Dialog> getByUser(UUID userid, int page, int limit);
-    Dialog start(Message message, String title);
-    Dialog addAnswer(UUID dialogid, Message message, Boolean closed);
-    Dialog addQuestion(UUID dialogid, Message message);
-    Dialog setClosed(UUID dialogid, Boolean closed);
-    Boolean delete(UUID id);
+    ResponseEntity<?> getAll(int page, int limit);
+    ResponseEntity<?> getById(UUID id);
+    ResponseEntity<?> getByAnswered(int page, int limit);
+    ResponseEntity<?> getByUser(UUID userid, int page, int limit);
+    ResponseEntity<?> start(Message message, String title);
+    ResponseEntity<?> addAnswer(UUID dialogid, Message message, Boolean closed);
+    ResponseEntity<?> addQuestion(UUID dialogid, Message message);
+    ResponseEntity<?> setClosed(UUID dialogid, Boolean closed);
+    ResponseEntity<?> delete(UUID id);
 }

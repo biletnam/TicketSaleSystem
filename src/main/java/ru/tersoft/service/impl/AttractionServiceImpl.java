@@ -5,6 +5,8 @@ import net.coobird.thumbnailator.name.Rename;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,7 @@ import ru.tersoft.entity.Category;
 import ru.tersoft.repository.AttractionRepository;
 import ru.tersoft.repository.CategoryRepository;
 import ru.tersoft.service.AttractionService;
+import ru.tersoft.utils.ResponseFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,58 +42,104 @@ public class AttractionServiceImpl implements AttractionService {
         this.categoryRepository = categoryRepository;
     }
 
-    public Iterable<Attraction> getAll() {
-        return attractionRepository.findAll();
+    public ResponseEntity<?> getAll() {
+        return ResponseFactory.createResponse(attractionRepository.findAll());
     }
 
     @Override
-    public Iterable<Attraction> getByCategory(UUID id) {
-        Category category = categoryRepository.findOne(id);
-        if(category != null) return attractionRepository.findByCategory(category);
-        else return null;
+    public ResponseEntity<?> getByCategory(UUID id) {
+        if(id != null) {
+            Category category = categoryRepository.findOne(id);
+            if(category == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
+            else
+                return ResponseFactory.createResponse(category);
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Category id was not passed");
+        }
+    }
+    public ResponseEntity<?> get(UUID id) {
+        Attraction attraction = attractionRepository.findOne(id);;
+        if(attraction == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        else
+            return ResponseFactory.createResponse(attraction);
     }
 
-    public Attraction get(UUID id) {
-        return attractionRepository.findOne(id);
+    public ResponseEntity<?> add(String name, String description, String cat, String price,
+                                 Boolean maintenance, MultipartFile image) {
+        Attraction attraction = new Attraction();
+        if(cat != null) {
+            Category category = categoryRepository.findOne((UUID.fromString(cat)));
+            if (category == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
+            attraction.setCategory(category);
+        }
+        attraction.setDescription(description);
+        Float floatPrice = null;
+        try {
+            if(price != null)
+                floatPrice = Float.parseFloat(price);
+        } catch (NumberFormatException e) {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
+        }
+        attraction.setPrice(floatPrice);
+        attraction.setName(name);
+        if(maintenance != null)
+            attraction.setMaintenance(maintenance);
+        else attraction.setMaintenance(true);
+        if(image != null)
+            attraction = saveImage(attraction, image);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Image was not selected");
+        return ResponseFactory.createResponse(attractionRepository.saveAndFlush(attraction));
     }
 
-    public Attraction add(Attraction attraction) {
-        if(attraction.getMaintenance() == null) attraction.setMaintenance(true);
-        return attractionRepository.saveAndFlush(attraction);
-    }
-
-    public Boolean delete(UUID id) {
-        if(attractionRepository.findOne(id) == null) return false;
-        else {
+    public ResponseEntity<?> delete(UUID id) {
+        if(attractionRepository.findOne(id) == null) {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        } else {
             attractionRepository.delete(id);
-            return true;
+            return ResponseFactory.createResponse();
         }
     }
 
-    public Boolean edit(Attraction attraction) {
-        if(attraction == null) return false;
-        if(attraction.getId() == null) return false;
-        Attraction existingAttraction = attractionRepository.findOne(attraction.getId());
-        if(existingAttraction == null) return false;
-        if(attraction.getName() != null&& !attraction.getName().isEmpty())
-            existingAttraction.setName(attraction.getName());
-        if(attraction.getPrice() != null)
-            existingAttraction.setPrice(attraction.getPrice());
-        if(attraction.getDescription() != null && !attraction.getDescription().isEmpty())
-            existingAttraction.setDescription(attraction.getDescription());
-        if(attraction.getImagepath() != null)
-            existingAttraction.setImagepath(attraction.getImagepath());
-        if(attraction.getSmallimagepath() != null)
-            existingAttraction.setSmallimagepath(attraction.getSmallimagepath());
-        if(attraction.getCategory() != null)
-            existingAttraction.setCategory(attraction.getCategory());
-        if(attraction.getMaintenance() != null)
-            existingAttraction.setMaintenance(attraction.getMaintenance());
-        attractionRepository.save(existingAttraction);
-        return true;
+    public ResponseEntity<?> edit(UUID id, String name, String description, String cat, String price,
+                        Boolean maintenance, MultipartFile image) {
+        if(id == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Attraction with empty id");
+        Attraction existingAttraction = attractionRepository.findOne(id);
+        if(existingAttraction == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        Category category = null;
+        if(cat != null) {
+            category = categoryRepository.findOne(UUID.fromString(cat));
+            if (category == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
+        }
+        Float floatPrice = null;
+        try {
+            if(price != null)
+                floatPrice = Float.parseFloat(price);
+        } catch (NumberFormatException e) {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
+        }
+        if(name != null && !name.isEmpty())
+            existingAttraction.setName(name);
+        if(floatPrice != null)
+            existingAttraction.setPrice(floatPrice);
+        if(description != null && !description.isEmpty())
+            existingAttraction.setDescription(description);
+        if(category != null)
+            existingAttraction.setCategory(category);
+        if(maintenance != null)
+            existingAttraction.setMaintenance(maintenance);
+        if(image != null)
+            existingAttraction = saveImage(existingAttraction, image);
+        return ResponseFactory.createResponse(attractionRepository.saveAndFlush(existingAttraction));
     }
 
-    public Attraction saveImage(Attraction attraction, MultipartFile image) {
+    private Attraction saveImage(Attraction attraction, MultipartFile image) {
         try {
             if (!image.isEmpty()) {
                 if(image.getContentType().equals("image/jpeg")) {

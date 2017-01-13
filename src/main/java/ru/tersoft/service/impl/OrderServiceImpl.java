@@ -8,10 +8,12 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tersoft.entity.Account;
 import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Order;
 import ru.tersoft.entity.Ticket;
@@ -20,6 +22,7 @@ import ru.tersoft.repository.AttractionRepository;
 import ru.tersoft.repository.OrderRepository;
 import ru.tersoft.repository.TicketRepository;
 import ru.tersoft.service.OrderService;
+import ru.tersoft.utils.ResponseFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -49,43 +52,55 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getAll(int pagenum, int limit) {
-        return orderRepository.findAll(new PageRequest(pagenum, limit));
+    public ResponseEntity<?> getAll(int pagenum, int limit) {
+        return ResponseFactory.createResponse(orderRepository.findAll(new PageRequest(pagenum, limit)));
     }
 
     @Override
-    public Order get(UUID id) {
-        return orderRepository.findOne(id);
+    public ResponseEntity<?> get(UUID id) {
+        Order order = orderRepository.findOne(id);
+        if(order != null)
+            return ResponseFactory.createResponse(order);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Order with such id was not found");
     }
 
     @Override
-    public Iterable<Order> getByAccount(UUID accountid) {
-        Calendar minDate = Calendar.getInstance();
-        minDate.add(Calendar.MONTH, -2);
-        return orderRepository.findByAccount(accountRepository.findOne(accountid), minDate.getTime());
+    public ResponseEntity<?> getByAccount(UUID accountid) {
+        Account account = accountRepository.findOne(accountid);
+        if(account != null) {
+            Calendar minDate = Calendar.getInstance();
+            minDate.add(Calendar.MONTH, -2);
+            return ResponseFactory.createResponse(orderRepository.findByAccount(accountRepository.findOne(accountid), minDate.getTime()));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
+        }
     }
 
     @Override
-    public Order add(Order order) {
+    public ResponseEntity<?> add(Order order) {
         Order countedOrder = countTotal(order);
         countedOrder = orderRepository.saveAndFlush(countedOrder);
         setOrders(countedOrder, countedOrder.getTickets());
-        return countedOrder;
+        return ResponseFactory.createResponse(countedOrder);
     }
 
     @Override
-    public Boolean delete(UUID id) {
-        if(orderRepository.findOne(id) != null) {
-            for(Ticket ticket : orderRepository.findOne(id).getTickets()) {
+    public ResponseEntity<?> delete(UUID id) {
+        Order order = orderRepository.findOne(id);
+        if(order != null) {
+            for(Ticket ticket : order.getTickets()) {
                 deleteCode(ticket.getId());
+                orderRepository.delete(id);
             }
-            orderRepository.delete(id);
-            return true;
-        } else return false;
+            return ResponseFactory.createResponse();
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Order with such id was not found");
+        }
     }
 
     @Override
-    public Boolean setPayed(UUID orderid) {
+    public ResponseEntity<?> setPayed(UUID orderid) {
         Order order = orderRepository.findOne(orderid);
         if(order != null) {
             order.setPayed(true);
@@ -94,23 +109,29 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setCode(generateCode(ticket.getId()));
                 ticketRepository.saveAndFlush(ticket);
             }
-            orderRepository.saveAndFlush(order);
-            return true;
-        } else return false;
+            return ResponseFactory.createResponse(orderRepository.saveAndFlush(order));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Order with such id was not found");
+        }
     }
 
     @Override
-    public Boolean addTickets(UUID orderid, List<Ticket> tickets) {
-        Order order = orderRepository.findOne(orderid);
-        if(order != null) {
-            setOrders(order, tickets);
-            orderRepository.saveAndFlush(countTotal(order));
-            return true;
-        } else return false;
+    public ResponseEntity<?> addTickets(UUID orderid, List<Ticket> tickets) {
+        if(tickets.size() > 0) {
+            Order order = orderRepository.findOne(orderid);
+            if(order != null) {
+                setOrders(order, tickets);
+                return ResponseFactory.createResponse(orderRepository.saveAndFlush(countTotal(order)));
+            } else {
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Order with such id was not found");
+            }
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty ticket array");
+        }
     }
 
     @Override
-    public Order deleteTicket(UUID ticketid) {
+    public ResponseEntity<?> deleteTicket(UUID ticketid) {
         Ticket ticket = ticketRepository.findOne(ticketid);
         if(ticket != null) {
             deleteCode(ticketid);
@@ -118,21 +139,23 @@ public class OrderServiceImpl implements OrderService {
             ticketRepository.delete(ticket);
             Order order = orderRepository.findOne(orderid);
             Order savedOrder = orderRepository.saveAndFlush(order);
-            return countTotal(savedOrder);
-        } else return null;
+            return ResponseFactory.createResponse(countTotal(savedOrder));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Ticket with such id was not found");
+        }
     }
 
     @Override
-    public Boolean disableTicket(UUID ticketid) {
+    public ResponseEntity<?> disableTicket(UUID ticketid) {
         Ticket existingTicket = ticketRepository.findOne(ticketid);
         if(existingTicket != null) {
             deleteCode(ticketid);
             existingTicket.setCode(null);
             existingTicket.setEnabled(false);
-            ticketRepository.saveAndFlush(existingTicket);
-            return true;
+            return ResponseFactory.createResponse(ticketRepository.saveAndFlush(existingTicket));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Ticket with such id was not found");
         }
-        else return false;
     }
 
     private Boolean deleteCode(UUID ticketid) {

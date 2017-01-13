@@ -1,8 +1,9 @@
 package ru.tersoft.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.entity.Account;
@@ -12,6 +13,7 @@ import ru.tersoft.repository.AccountRepository;
 import ru.tersoft.repository.DialogRepository;
 import ru.tersoft.repository.MessageRepository;
 import ru.tersoft.service.DialogService;
+import ru.tersoft.utils.ResponseFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,29 +33,35 @@ public class DialogServiceImpl implements DialogService {
         this.messageRepository = messageRepository;
     }
 
-    @Override
-    public Page<Dialog> getAll(int page, int limit) {
-        return dialogRepository.findAll(new PageRequest(page, limit));
+    public ResponseEntity<?> getAll(int page, int limit) {
+        return ResponseFactory.createResponse(dialogRepository.findAll(new PageRequest(page, limit)));
     }
 
     @Override
-    public Dialog getById(UUID id) {
-        return dialogRepository.findOne(id);
+    public ResponseEntity<?> getById(UUID id) {
+        Dialog dialog = dialogRepository.findOne(id);
+        if(dialog != null)
+            return ResponseFactory.createResponse(dialog);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Dialog with such id was not found");
+
+    }
+
+    public ResponseEntity<?> getByAnswered(int page, int limit) {
+        return ResponseFactory.createResponse(dialogRepository.findByAnswered(new PageRequest(page, limit)));
     }
 
     @Override
-    public Page<Dialog> getByAnswered(int page, int limit) {
-        return dialogRepository.findByAnswered(new PageRequest(page, limit));
-    }
-
-    @Override
-    public Page<Dialog> getByUser(UUID userid, int page, int limit) {
+    public ResponseEntity<?> getByUser(UUID userid, int page, int limit) {
         Account account = accountRepository.findOne(userid);
-        return dialogRepository.findByUser(account, new PageRequest(page, limit));
+        if(account != null)
+            return ResponseFactory.createResponse(dialogRepository.findByUser(account, new PageRequest(page, limit)));
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
     }
 
     @Override
-    public Dialog start(Message message, String title) {
+    public ResponseEntity<?> start(Message message, String title) {
         message.setType("question");
         message.setUser(accountRepository.findOne(message.getUser().getId()));
         Message addedMessage = messageRepository.saveAndFlush(message);
@@ -66,54 +74,69 @@ public class DialogServiceImpl implements DialogService {
         dialog.setMessages(messages);
         dialog = dialogRepository.saveAndFlush(dialog);
         addedMessage.setDialog(dialog);
-        messageRepository.saveAndFlush(addedMessage);
-        return dialog;
+        return ResponseFactory.createResponse(messageRepository.saveAndFlush(addedMessage));
     }
 
     @Override
-    public Dialog addAnswer(UUID dialogid, Message message, Boolean closed) {
+    public ResponseEntity<?> addAnswer(UUID dialogid, Message message, Boolean closed) {
         Dialog dialog = dialogRepository.findOne(dialogid);
-        message.setDialog(dialog);
-        message.setType("answer");
-        message.setUser(accountRepository.findOne(message.getUser().getId()));
-        Message addedMessage = messageRepository.saveAndFlush(message);
-        List<Message> messages = dialog.getMessages();
-        messages.add(addedMessage);
-        dialog.setMessages(messages);
-        dialog.setAnswered(true);
-        if(closed != null) {
-            if(closed) dialog.setClosed(true);
+        if(dialog != null) {message.setDialog(dialog);
+            message.setType("answer");
+            message.setUser(accountRepository.findOne(message.getUser().getId()));
+            Message addedMessage = messageRepository.saveAndFlush(message);
+            List<Message> messages = dialog.getMessages();
+            messages.add(addedMessage);
+            dialog.setMessages(messages);
+            dialog.setAnswered(true);
+            if(closed != null) {
+                if(closed) dialog.setClosed(true);
+            }
+            return ResponseFactory.createResponse(dialogRepository.saveAndFlush(dialog));
+
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Dialog with such id was not found");
         }
-        return dialogRepository.saveAndFlush(dialog);
+
     }
 
     @Override
-    public Dialog addQuestion(UUID dialogid, Message message) {
+    public ResponseEntity<?> addQuestion(UUID dialogid, Message message) {
         Dialog dialog = dialogRepository.findOne(dialogid);
-        if(dialog.getClosed()) return null;
-        message.setDialog(dialog);
-        message.setUser(accountRepository.findOne(message.getUser().getId()));
-        message.setType("question");
-        Message addedMessage = messageRepository.saveAndFlush(message);
-        List<Message> messages = dialog.getMessages();
-        messages.add(addedMessage);
-        dialog.setMessages(messages);
-        dialog.setAnswered(false);
-        return dialogRepository.saveAndFlush(dialog);
+        if(dialog != null) {
+            if(dialog.getClosed())
+                return ResponseFactory.createErrorResponse(HttpStatus.LOCKED, "Such dialog was closed");
+            message.setDialog(dialog);
+            message.setUser(accountRepository.findOne(message.getUser().getId()));
+            message.setType("question");
+            Message addedMessage = messageRepository.saveAndFlush(message);
+            List<Message> messages = dialog.getMessages();
+            messages.add(addedMessage);
+            dialog.setMessages(messages);
+            dialog.setAnswered(false);
+            return ResponseFactory.createResponse(dialogRepository.saveAndFlush(dialog));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Dialog with such id was not found");
+        }
     }
 
     @Override
-    public Dialog setClosed(UUID dialogid, Boolean closed) {
+    public ResponseEntity<?> setClosed(UUID dialogid, Boolean closed) {
         Dialog dialog = dialogRepository.findOne(dialogid);
-        dialog.setClosed(closed);
-        return dialog;
+        if(dialog != null) {
+            dialog.setClosed(closed);
+            return ResponseFactory.createResponse(dialog);
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Dialog with such id was not found");
+        }
     }
 
     @Override
-    public Boolean delete(UUID id) {
+    public ResponseEntity<?> delete(UUID id) {
         if(dialogRepository.findOne(id) != null) {
             dialogRepository.delete(id);
-            return true;
-        } else return false;
+            return ResponseFactory.createResponse();
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Dialog with such id was not found");
+        }
     }
 }
