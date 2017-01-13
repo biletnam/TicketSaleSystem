@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.entity.Maintenance;
 import ru.tersoft.service.AttractionService;
 import ru.tersoft.service.MaintenanceService;
+import ru.tersoft.utils.ResponseFactory;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -31,19 +31,12 @@ public class MaintenanceController {
     @RequestMapping(value = "/{attrid}", method = RequestMethod.GET)
     @ApiOperation(value = "Get list of maintenance dates")
     public ResponseEntity<?> getMaintenances(@PathVariable("attrid") UUID attractionid) {
-        if(attractionService.get(attractionid) == null) {
-            return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                            "Attraction with such id was not found"),
-                            HttpStatus.NOT_FOUND);
-        }
-        if(attractionid != null) {
-            return new ResponseEntity<>((List<Maintenance>)maintenanceService.getAll(attractionid), HttpStatus.OK);
-        }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Attraction id was not passed"),
-                        HttpStatus.BAD_REQUEST);
+        if(attractionService.get(attractionid) == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        if(attractionid != null)
+            return ResponseFactory.createResponse(maintenanceService.getAll(attractionid));
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Attraction id was not passed");
     }
 
     @RequestMapping(value = "/{attrid}/{date}", method = RequestMethod.GET)
@@ -53,17 +46,13 @@ public class MaintenanceController {
              @PathVariable("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
         if(today != null && attractionid != null) {
             List<Maintenance> maintenances = (List<Maintenance>)maintenanceService.getByDate(today, attractionid);
-            if(maintenances != null) {
-                return new ResponseEntity<>(maintenances, HttpStatus.OK);
-            } else return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                            "Attraction with such id was not found"),
-                            HttpStatus.NOT_FOUND);
+            if(maintenances != null)
+                return ResponseFactory.createResponse(maintenances);
+            else
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Date or attraction id was not passed");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Date or attraction id was not passed"),
-                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -74,11 +63,10 @@ public class MaintenanceController {
     })
     public ResponseEntity<?> add(@RequestBody Maintenance maintenance) {
         Maintenance addedMaintenance = maintenanceService.add(maintenance);
-        if(addedMaintenance != null) return new ResponseEntity<>(addedMaintenance, HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Attraction with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(addedMaintenance != null)
+            return ResponseFactory.createResponse(addedMaintenance);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -90,16 +78,13 @@ public class MaintenanceController {
     public ResponseEntity<?> edit(@RequestBody Maintenance maintenance) {
         if(maintenance != null) {
             Boolean isEdited = maintenanceService.edit(maintenance);
-            if(isEdited) return new ResponseEntity<>(maintenanceService.get(maintenance.getId()), HttpStatus.OK);
-            else return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                            "Maintenance with such id was not found"),
-                            HttpStatus.NOT_FOUND);
+            if(isEdited)
+                return ResponseFactory.createResponse(maintenanceService.get(maintenance.getId()));
+            else
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty maintenance");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty maintenance"),
-                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -110,10 +95,9 @@ public class MaintenanceController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         Boolean isDeleted = maintenanceService.delete(id);
-        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Maintenance with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(isDeleted)
+            return ResponseFactory.createResponse();
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
     }
 }

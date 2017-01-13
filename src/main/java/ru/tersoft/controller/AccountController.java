@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Account;
-import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.AccountService;
+import ru.tersoft.utils.ResponseFactory;
 
 import javax.annotation.Resource;
 import java.security.Principal;
@@ -43,17 +43,13 @@ public class AccountController {
             account.setAdmin(false);
             try {
                 Account addedAccount = accountService.add(account);
-                return new ResponseEntity<>(addedAccount, HttpStatus.OK);
+                return ResponseFactory.createResponse(addedAccount);
             } catch(DataIntegrityViolationException e) {
-                return new ResponseEntity<>
-                        (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                                "E-mail already in use"),
-                                HttpStatus.BAD_REQUEST);
+                return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "E-mail already in use");
             }
-        } else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty account"),
-                        HttpStatus.BAD_REQUEST);
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty account");
+        }
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -64,11 +60,10 @@ public class AccountController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         Boolean isDeleted = accountService.delete(id);
-        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Account with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(isDeleted)
+            return ResponseFactory.createResponse();
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -79,11 +74,10 @@ public class AccountController {
     @ApiOperation(value = "Get account data by id", notes = "Admin access required", response = Account.class)
     public ResponseEntity<?> getById(@PathVariable("id") UUID id) {
         Account account = accountService.get(id);
-        if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Account with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(account != null)
+            return ResponseFactory.createResponse(account);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -92,24 +86,20 @@ public class AccountController {
     })
     @ApiOperation(value = "Get account data of current user", response = Account.class)
     public ResponseEntity<?> get(Principal principal) {
-        if(principal == null) return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Wrong or empty access token"),
-                        HttpStatus.BAD_REQUEST);
+        if(principal == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
         Account account = accountService.get(userid);
-        if(account != null) return new ResponseEntity<>(account, HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Account with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(account != null)
+            return ResponseFactory.createResponse(account);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
     }
 
     @RequestMapping(value = "/check", method = RequestMethod.GET)
     @ApiOperation(value = "Check user's mail", response = Boolean.class)
     public ResponseEntity<?> checkMail(@RequestParam("mail") String mail) {
-        Boolean isFree = accountService.checkMail(mail);
-        return new ResponseEntity<>(isFree, HttpStatus.OK);
+        return ResponseFactory.createResponse(accountService.checkMail(mail));
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
@@ -119,11 +109,10 @@ public class AccountController {
     @ApiOperation(value = "Edit account data with provided id", response = Account.class)
     public ResponseEntity<?> edit(@RequestBody Account account) {
         Boolean isEdited = accountService.edit(account);
-        if(isEdited) return new ResponseEntity<>(accountService.get(account.getId()), HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Account with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(isEdited)
+            return ResponseFactory.createResponse(accountService.get(account.getId()));
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -137,11 +126,9 @@ public class AccountController {
         if(account != null) {
             account.setAdmin(admin);
             accountService.edit(account);
-            return new ResponseEntity<>(account, HttpStatus.OK);
+            return ResponseFactory.createResponse(account);
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Account with such id was not found"),
-                        HttpStatus.NOT_FOUND);
     }
 }

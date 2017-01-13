@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.tersoft.entity.Attraction;
 import ru.tersoft.entity.Category;
-import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.AttractionService;
 import ru.tersoft.service.CategoryService;
+import ru.tersoft.utils.ResponseFactory;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -38,18 +38,13 @@ public class AttractionController {
     @ApiOperation(value = "Get list of attractions by category id")
     public ResponseEntity<?> getByCategory(@PathVariable("id") UUID id) {
         if(id != null) {
-            if(attractionService.getByCategory(id) == null) {
-                return new ResponseEntity<>
-                        (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                                "Category with such id was not found"),
-                                HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>((List<Attraction>)attractionService.getByCategory(id), HttpStatus.OK);
+            if(attractionService.getByCategory(id) == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
+            else
+                return ResponseFactory.createResponse(attractionService.getByCategory(id));
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Category id was not passed");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Category id was not passed"),
-                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -67,10 +62,8 @@ public class AttractionController {
         Attraction attraction = new Attraction();
         if(cat != null) {
             Category category = categoryService.get(UUID.fromString(cat));
-            if (category == null) return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                            "Category with such id was not found"),
-                            HttpStatus.NOT_FOUND);
+            if (category == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
             attraction.setCategory(category);
         }
         attraction.setDescription(description);
@@ -79,10 +72,7 @@ public class AttractionController {
             if(price != null)
                 floatPrice = Float.parseFloat(price);
         } catch (NumberFormatException e) {
-            return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                            "Wrong format of price field"),
-                            HttpStatus.BAD_REQUEST);
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
         }
         attraction.setPrice(floatPrice);
         attraction.setName(name);
@@ -90,18 +80,14 @@ public class AttractionController {
             attraction.setMaintenance(maintenance);
         if(image != null)
             attraction = attractionService.saveImage(attraction, image);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Image was not selected"),
-                        HttpStatus.BAD_REQUEST);
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Image was not selected");
         if(attraction != null) {
             Attraction addedAttraction = attractionService.add(attraction);
-            return new ResponseEntity<>(addedAttraction, HttpStatus.OK);
+            return ResponseFactory.createResponse(addedAttraction);
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attraction");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty attraction"),
-                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -112,22 +98,20 @@ public class AttractionController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         Boolean isDeleted = attractionService.delete(id);
-        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Attraction with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(isDeleted)
+            return ResponseFactory.createResponse();
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get attraction by id", response = Attraction.class)
     public ResponseEntity<?> get(@PathVariable("id") UUID id) {
         Attraction attraction = attractionService.get(id);
-        if(attraction == null) return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Attraction with such id was not found"),
-                HttpStatus.NOT_FOUND);
-        else return new ResponseEntity<>(attraction, HttpStatus.OK);
+        if(attraction == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        else
+            return ResponseFactory.createResponse(attraction);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -148,12 +132,8 @@ public class AttractionController {
         attraction.setDescription(description);
         if(cat != null) {
             Category category = categoryService.get(UUID.fromString(cat));
-            if (category == null) {
-                return new ResponseEntity<>
-                        (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                                "Category with such id was not found"),
-                                HttpStatus.NOT_FOUND);
-            }
+            if (category == null)
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
             attraction.setCategory(category);
         }
         Float floatPrice = null;
@@ -161,29 +141,17 @@ public class AttractionController {
             if(price != null)
                 floatPrice = Float.parseFloat(price);
         } catch (NumberFormatException e) {
-            return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                            "Wrong format of price field"),
-                            HttpStatus.BAD_REQUEST);
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
         }
         attraction.setPrice(floatPrice);
         attraction.setName(name);
         attraction.setMaintenance(maintenance);
         if(image != null)
             attraction = attractionService.saveImage(attraction, image);
-        if(attraction != null) {
-            Boolean isEdited = attractionService.edit(attraction);
-            if(!isEdited) {
-                return new ResponseEntity<>
-                        (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                                "Attraction with such id was not found"),
-                                HttpStatus.NOT_FOUND);
-            }
-        }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty account"),
-                        HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(attractionService.get(id), HttpStatus.OK);
+        Boolean isEdited = attractionService.edit(attraction);
+        if(!isEdited)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+        else
+            return ResponseFactory.createResponse(attractionService.get(id));
     }
 }

@@ -7,7 +7,6 @@ public class ErrorResponse {
     private Long code;
     private String desc;
 
-
     public ErrorResponse(Long code, String desc) {
         this.time = Calendar.getInstance().getTimeInMillis();
         this.code = code;

@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tersoft.entity.Category;
-import ru.tersoft.entity.ErrorResponse;
 import ru.tersoft.service.CategoryService;
+import ru.tersoft.utils.ResponseFactory;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -36,11 +36,10 @@ public class CategoryController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> add(@RequestBody Category category) {
-        if(category != null) return new ResponseEntity<>(categoryService.add(category), HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty category"),
-                        HttpStatus.BAD_REQUEST);
+        if(category != null)
+            return ResponseFactory.createResponse(categoryService.add(category));
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty category");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -52,16 +51,13 @@ public class CategoryController {
     public ResponseEntity<?> edit(@RequestBody Category category) {
         if(category != null) {
             Boolean isEdited = categoryService.edit(category);
-            if(isEdited) return new ResponseEntity<>(categoryService.get(category.getId()), HttpStatus.OK);
-            else return new ResponseEntity<>
-                    (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                            "Category with such id was not found"),
-                            HttpStatus.NOT_FOUND);
+            if(isEdited)
+                return ResponseFactory.createResponse(categoryService.get(category.getId()));
+            else
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
+        } else {
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty category");
         }
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.BAD_REQUEST.toString()),
-                        "Passed empty category"),
-                        HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -72,10 +68,9 @@ public class CategoryController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         Boolean isDeleted = categoryService.delete(id);
-        if(isDeleted) return new ResponseEntity<>(HttpStatus.OK);
-        else return new ResponseEntity<>
-                (new ErrorResponse(Long.parseLong(HttpStatus.NOT_FOUND.toString()),
-                        "Category with such id was not found"),
-                        HttpStatus.NOT_FOUND);
+        if(isDeleted)
+            return ResponseFactory.createResponse();
+        else
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
     }
 }
