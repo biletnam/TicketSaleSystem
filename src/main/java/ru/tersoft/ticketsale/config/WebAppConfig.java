@@ -34,6 +34,8 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/apidocs/swagger-ui.html**").addResourceLocations("classpath:/META-INF/resources/swagger-ui.html");
         registry.addResourceHandler("/apidocs/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
         registry.addResourceHandler("/**").addResourceLocations("classpath:/public/");
+        registry.addResourceHandler("/img/**")
+                    .addResourceLocations("file:" + env.getProperty("ticketsale.images-folder"));
     }
 
 }

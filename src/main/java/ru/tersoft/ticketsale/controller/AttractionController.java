@@ -43,9 +43,9 @@ public class AttractionController {
                                  @RequestPart(value = "description") String description,
                                  @RequestPart(value = "cat", required = false) String cat,
                                  @RequestPart(value = "price") String price,
-                                 @RequestPart(value = "maintenance", required = false) Boolean maintenance,
+                                 @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
                                  @RequestPart(value = "image") MultipartFile image) {
-        return attractionService.add(name, description, cat, price, maintenance, image);
+        return attractionService.add(name, description, cat, price, maintenanceid, image);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -75,8 +75,8 @@ public class AttractionController {
                                   @RequestPart(value = "description", required = false) String description,
                                   @RequestPart(value = "cat", required = false) String cat,
                                   @RequestPart(value = "price", required = false) String price,
-                                  @RequestPart(value = "maintenance", required = false) Boolean maintenance,
+                                  @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
                                   @RequestPart(value = "image", required = false) MultipartFile image) {
-        return attractionService.edit(id, name, description, cat, price, maintenance, image);
+        return attractionService.edit(id, name, description, cat, price, maintenanceid, image);
     }
 }

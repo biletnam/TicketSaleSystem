@@ -10,8 +10,8 @@ public interface AttractionService {
     ResponseEntity<?> getByCategory(UUID id);
     ResponseEntity<?> get(UUID id);
     ResponseEntity<?> add(String name, String description, String cat, String price,
-                          Boolean maintenance, MultipartFile image);
+                          String maintenanceid, MultipartFile image);
     ResponseEntity<?> delete(UUID id);
     ResponseEntity<?> edit(UUID id, String name, String description, String cat, String price,
-                 Boolean maintenance, MultipartFile image);
+                 String maintenanceid, MultipartFile image);
 }

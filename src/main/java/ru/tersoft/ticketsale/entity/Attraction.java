@@ -45,8 +45,8 @@ public class Attraction implements Serializable {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String smallimagepath;
 
-    @Column(name = "maintenance")
-    private Boolean maintenance;
+    @OneToOne
+    private Maintenance maintenance;
 
     public UUID getId() {
         return id;
@@ -80,14 +80,6 @@ public class Attraction implements Serializable {
         this.imagepath = imagepath;
     }
 
-    public Boolean getMaintenance() {
-        return maintenance;
-    }
-
-    public void setMaintenance(Boolean maintenance) {
-        this.maintenance = maintenance;
-    }
-
     public String getSmallimagepath() {
         return smallimagepath;
     }
@@ -110,5 +102,13 @@ public class Attraction implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Maintenance getMaintenance() {
+        return maintenance;
+    }
+
+    public void setMaintenance(Maintenance maintenance) {
+        this.maintenance = maintenance;
     }
 }

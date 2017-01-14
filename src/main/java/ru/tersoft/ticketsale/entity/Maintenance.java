@@ -23,11 +23,6 @@ public class Maintenance implements Serializable {
     @Type(type = "uuid-char")
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "attraction", nullable = false)
-    @ApiModelProperty(required = true)
-    private Attraction attraction;
-
     @Column(name = "startdate", columnDefinition="DATE", nullable = false)
     @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -44,14 +39,6 @@ public class Maintenance implements Serializable {
 
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
-
-    public Attraction getAttraction() {
-        return attraction;
-    }
-
-    public void setAttraction(Attraction attraction) {
-        this.attraction = attraction;
-    }
 
     public Date getStartdate() {
         return startdate;

@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,6 @@ import ru.tersoft.ticketsale.entity.Maintenance;
 import ru.tersoft.ticketsale.service.MaintenanceService;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.UUID;
 
 @RestController
@@ -21,14 +19,6 @@ import java.util.UUID;
 public class MaintenanceController {
     @Resource(name = "MaintenanceService")
     private MaintenanceService maintenanceService;
-
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of maintenances by date")
-    public ResponseEntity<?> getMaintenances
-            (@RequestParam("attr") UUID attractionid,
-             @RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date today) {
-        return maintenanceService.getByDate(today, attractionid);
-    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.POST)
