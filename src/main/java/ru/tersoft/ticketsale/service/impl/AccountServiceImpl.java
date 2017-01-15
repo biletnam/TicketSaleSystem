@@ -56,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
             try {
                 String encodedPassword = passwordEncoder.encode(account.getPassword());
                 account.setPassword(encodedPassword);
-                int avatarNumber = (account.getFirstname().length() + account.getLastname().length()) % 10;
+                int avatarNumber = account.getMail().length() % 10;
                 account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
                 if(account.isEnabled() == null) account.setEnabled(true);
                 return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));

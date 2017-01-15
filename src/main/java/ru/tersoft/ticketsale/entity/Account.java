@@ -21,15 +21,13 @@ public class Account implements Serializable {
     @Column(name = "id")
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Type(type="uuid-char")
+    @Type(type = "uuid-char")
     private UUID id;
 
-    @Column(name = "firstname", nullable = false)
-    @ApiModelProperty(required = true)
+    @Column(name = "firstname")
     private String firstname;
 
-    @Column(name = "lastname", nullable = false)
-    @ApiModelProperty(required = true)
+    @Column(name = "lastname")
     private String lastname;
 
     @Column(name = "mail", nullable = false, unique = true)
@@ -45,8 +43,8 @@ public class Account implements Serializable {
     private String avatar;
 
     @Column(name = "birthdate", columnDefinition = "DATE")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     @ApiModelProperty(example = "1970-01-01")
     private Date birthdate;
