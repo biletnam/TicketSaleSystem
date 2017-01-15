@@ -14,7 +14,7 @@ import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableResourceServer
-@ComponentScan({ "ru.tersoft" })
+@ComponentScan({ "ru.tersoft.ticketsale" })
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     private final TokenStore tokenStore;
 

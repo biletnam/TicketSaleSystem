@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAuthorizationServer
-@ComponentScan({ "ru.tersoft" })
+@ComponentScan({ "ru.tersoft.ticketsale" })
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager auth;
     private final DetailsService userDetailsService;

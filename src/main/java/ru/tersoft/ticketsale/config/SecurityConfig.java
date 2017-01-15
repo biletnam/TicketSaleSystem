@@ -13,7 +13,7 @@ import ru.tersoft.ticketsale.service.DetailsService;
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan({ "ru.tersoft" })
+@ComponentScan({ "ru.tersoft.ticketsale" })
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final DetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;

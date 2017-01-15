@@ -18,7 +18,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan({ "ru.tersoft" })
+@ComponentScan({ "ru.tersoft.ticketsale" })
 @PropertySource(value = { "classpath:application.properties" })
 public class HibernateConfig {
     private final Environment env;
