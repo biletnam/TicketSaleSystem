@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.tersoft.ticketsale.service.DetailsService;
 
 @Configuration
@@ -16,12 +15,10 @@ import ru.tersoft.ticketsale.service.DetailsService;
 @ComponentScan({ "ru.tersoft.ticketsale" })
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final DetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(DetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(DetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,6 +29,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(userDetailsService);
     }
 }

@@ -82,8 +82,12 @@ public class AccountController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Edit account data with provided id", response = Account.class)
-    public ResponseEntity<?> edit(@RequestBody Account account) {
+    @ApiOperation(value = "Edit account data", response = Account.class, notes = "You don't need to pass account id here")
+    public ResponseEntity<?> edit(@RequestBody Account account, Principal principal) {
+        if(principal == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
+        UUID userid = accountService.findUserByMail(principal.getName()).getId();
+        account.setId(userid);
         return accountService.edit(account);
     }
 

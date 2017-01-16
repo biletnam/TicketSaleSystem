@@ -7,7 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -28,13 +27,11 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager auth;
     private final DetailsService userDetailsService;
     private final DataSource dataSource;
-    private final PasswordEncoder passwordEncoder;
     private final UserTokenEnhancer tokenEnhancer;
 
     @Autowired
-    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, PasswordEncoder passwordEncoder, DataSource dataSource, DetailsService userDetailsService, UserTokenEnhancer tokenEnhancer) {
+    public OAuth2Config(@Qualifier("authenticationManagerBean") AuthenticationManager auth, DataSource dataSource, DetailsService userDetailsService, UserTokenEnhancer tokenEnhancer) {
         this.auth = auth;
-        this.passwordEncoder = passwordEncoder;
         this.dataSource = dataSource;
         this.userDetailsService = userDetailsService;
         this.tokenEnhancer = tokenEnhancer;
@@ -70,8 +67,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients
-                .jdbc(dataSource)
-                .passwordEncoder(passwordEncoder);
+                .jdbc(dataSource);
     }
 
     @Bean

@@ -5,7 +5,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.ticketsale.entity.Account;
@@ -20,16 +19,13 @@ import java.util.UUID;
 @Transactional
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Account findUserByMail(String mail) {
         List<Account> accounts = (List<Account>)accountRepository.findByMail(mail);
-        if(accounts.size() != 0) {
+        if(accounts.size() != 0)
             return accounts.get(0);
-        }
-        else {
+        else
             return null;
-        }
     }
 
     @Autowired
@@ -54,8 +50,6 @@ public class AccountServiceImpl implements AccountService {
         if(account != null) {
             account.setAdmin(false);
             try {
-                String encodedPassword = passwordEncoder.encode(account.getPassword());
-                account.setPassword(encodedPassword);
                 int avatarNumber = account.getMail().length() % 10;
                 account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
                 if(account.isEnabled() == null) account.setEnabled(true);
@@ -81,14 +75,12 @@ public class AccountServiceImpl implements AccountService {
     public ResponseEntity<?> edit(Account account) {
         if(account == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty account");
-        if(account.getId() == null)
-            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Account with empty id");
         Account existingAccount = accountRepository.findOne(account.getId());
         if(existingAccount == null)
             return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
-        if(account.getFirstname() != null && !account.getFirstname().isEmpty())
+        if(account.getFirstname() != null)
             existingAccount.setFirstname(account.getFirstname());
-        if(account.getLastname() != null && !account.getLastname().isEmpty())
+        if(account.getLastname() != null)
             existingAccount.setLastname(account.getLastname());
         if(account.getPassword() != null && !account.getPassword().isEmpty())
             existingAccount.setPassword(account.getPassword());

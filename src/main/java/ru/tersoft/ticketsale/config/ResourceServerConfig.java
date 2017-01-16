@@ -9,8 +9,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableResourceServer
@@ -33,6 +32,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers(OPTIONS, "/**").permitAll()
                 .antMatchers(POST, "/api/accounts").permitAll()
                 .antMatchers(GET, "/**").permitAll()
                 .antMatchers(GET, "/api/accounts/check/**").permitAll()
