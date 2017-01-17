@@ -170,8 +170,8 @@ public class AttractionServiceImpl implements AttractionService {
                             .forceSize(imagesWidth, imagesHeight)
                             .outputFormat("png")
                             .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
-                    attraction.setImagepath("/img/attractions/" + attraction.getId() + ".png");
-                    attraction.setSmallimagepath("/img/attractions/thumbnail."
+                    attraction.setImage("/img/attractions/" + attraction.getId() + ".png");
+                    attraction.setThumbnail("/img/attractions/thumbnail."
                             + attraction.getId() + ".png");
                     return attraction;
                 }

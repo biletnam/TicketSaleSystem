@@ -37,13 +37,13 @@ public class Attraction implements Serializable {
     @ApiModelProperty(required = true)
     private Float price;
 
-    @Column(name = "imagepath")
+    @Column(name = "image")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String imagepath;
+    private String image;
 
-    @Column(name = "smallimagepath")
+    @Column(name = "thumbnail")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private String smallimagepath;
+    private String thumbnail;
 
     @OneToOne
     private Maintenance maintenance;
@@ -72,20 +72,20 @@ public class Attraction implements Serializable {
         this.description = description;
     }
 
-    public String getImagepath() {
-        return imagepath;
+    public String getImage() {
+        return image;
     }
 
-    public void setImagepath(String imagepath) {
-        this.imagepath = imagepath;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public String getSmallimagepath() {
-        return smallimagepath;
+    public String getThumbnail() {
+        return thumbnail;
     }
 
-    public void setSmallimagepath(String smallimagepath) {
-        this.smallimagepath = smallimagepath;
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public Float getPrice() {
