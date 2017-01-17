@@ -96,11 +96,10 @@ public class AccountController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @ApiOperation(value = "Set user's admin flag", notes = "Admin access required", response = Account.class)
-    public ResponseEntity<?> makeAdmin(@PathVariable("id") UUID id, @RequestParam boolean admin) {
-        return accountService.edit(new Account() {{
-            setId(id);
-            setAdmin(admin);
-        }});
+    @ApiOperation(value = "Change user's flags", notes = "Admin access required", response = Account.class)
+    public ResponseEntity<?> changeFlags(@PathVariable("id") UUID id,
+                                         @RequestParam(required = false) Boolean admin,
+                                         @RequestParam(required = false) Boolean enabled) {
+        return accountService.changeFlags(id, admin, enabled);
     }
 }

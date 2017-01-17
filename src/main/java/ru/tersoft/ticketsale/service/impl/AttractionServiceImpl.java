@@ -162,17 +162,17 @@ public class AttractionServiceImpl implements AttractionService {
     private Attraction saveImage(Attraction attraction, MultipartFile image) {
         try {
             if (!image.isEmpty()) {
-                if(image.getContentType().equals("image/jpeg")) {
-                    String filename = imagesLocation + "attractions/" + attraction.getId() + ".jpg";
+                if(image.getContentType().equals("image/png")) {
+                    String filename = imagesLocation + "attractions/" + attraction.getId() + ".png";
                     File file = new File(filename);
                     image.transferTo(file);
                     Thumbnails.of(file)
-                            .size(imagesWidth, imagesHeight)
-                            .outputFormat("jpg")
+                            .forceSize(imagesWidth, imagesHeight)
+                            .outputFormat("png")
                             .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
-                    attraction.setImagepath("/img/attractions/" + attraction.getId() + ".jpg");
+                    attraction.setImagepath("/img/attractions/" + attraction.getId() + ".png");
                     attraction.setSmallimagepath("/img/attractions/thumbnail."
-                            + attraction.getId() + ".jpg");
+                            + attraction.getId() + ".png");
                     return attraction;
                 }
             }

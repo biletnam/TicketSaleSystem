@@ -13,4 +13,5 @@ public interface AccountService {
     ResponseEntity<?> delete(UUID id);
     ResponseEntity<?> edit(Account account);
     Boolean checkMail(String mail);
+    ResponseEntity<?> changeFlags(UUID id, Boolean admin, Boolean enabled);
 }

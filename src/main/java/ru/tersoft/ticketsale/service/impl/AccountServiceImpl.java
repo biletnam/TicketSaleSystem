@@ -93,6 +93,19 @@ public class AccountServiceImpl implements AccountService {
         return ResponseFactory.createResponse(accountRepository.saveAndFlush(existingAccount));
     }
 
+    public ResponseEntity<?> changeFlags(UUID id, Boolean admin, Boolean enabled) {
+        if(id == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty account id");
+        Account account = accountRepository.findOne(id);
+        if(account == null)
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
+        if(enabled != null)
+            account.setEnabled(enabled);
+        if(admin != null)
+            account.setAdmin(admin);
+        return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));
+    }
+
     @Override
     public Boolean checkMail(String mail) {
         List<Account> accountList = (List<Account>)accountRepository.findByMail(mail);
