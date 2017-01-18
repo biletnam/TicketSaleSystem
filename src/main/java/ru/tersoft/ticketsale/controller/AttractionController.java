@@ -46,7 +46,6 @@ public class AttractionController {
                                  @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
                                  @RequestPart(value = "image") MultipartFile image) {
         return attractionService.add(name, description, cat, price, maintenanceid, image);
-        //return attractionService.add(attraction.getName(), attraction.getDescription(), attraction.getCategory().getId().toString(), attraction.getPrice().toString(), attraction.getMaintenance().getId().toString(), image);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

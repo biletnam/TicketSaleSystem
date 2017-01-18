@@ -29,6 +29,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.List;
 
@@ -207,10 +208,10 @@ public class OrderServiceImpl implements OrderService {
 
     private Order countTotal(Order order) {
         List<Ticket> tickets = order.getTickets();
-        Float total = 0F;
+        BigDecimal total = BigDecimal.ZERO;
         for (Ticket ticket : tickets) {
             Attraction currAttraction = attractionRepository.findOne(ticket.getAttraction().getId());
-            total += currAttraction.getPrice();
+            total = total.add(currAttraction.getPrice());
         }
         order.setTotal(total);
         return order;

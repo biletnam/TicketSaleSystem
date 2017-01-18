@@ -1,7 +1,6 @@
 package ru.tersoft.ticketsale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,14 +48,13 @@ public class AccountServiceImpl implements AccountService {
     public ResponseEntity<?> add(Account account) {
         if(account != null) {
             account.setAdmin(false);
-            try {
-                int avatarNumber = account.getMail().length() % 10;
-                account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
-                if(account.isEnabled() == null) account.setEnabled(true);
+            int avatarNumber = account.getMail().length() % 10;
+            account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
+            if(account.isEnabled() == null) account.setEnabled(true);
+            if(checkMail(account.getMail()))
                 return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));
-            } catch(DataIntegrityViolationException e) {
+            else
                 return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "E-mail already in use");
-            }
         } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty account");
         }

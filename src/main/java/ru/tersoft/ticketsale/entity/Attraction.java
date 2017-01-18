@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -35,7 +36,7 @@ public class Attraction implements Serializable {
 
     @Column(name = "price", columnDefinition = "decimal(19,4)", nullable = false)
     @ApiModelProperty(required = true)
-    private Float price;
+    private BigDecimal price;
 
     @Column(name = "image")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -88,11 +89,11 @@ public class Attraction implements Serializable {
         this.thumbnail = thumbnail;
     }
 
-    public Float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

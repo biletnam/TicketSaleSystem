@@ -22,6 +22,7 @@ import ru.tersoft.ticketsale.utils.ResponseFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,14 +84,15 @@ public class AttractionServiceImpl implements AttractionService {
             attraction.setCategory(category);
         }
         attraction.setDescription(description);
-        Float floatPrice = null;
+        BigDecimal decimalPrice = null;
         try {
             if(price != null)
-                floatPrice = Float.parseFloat(price);
+                decimalPrice = new BigDecimal(price);
+            else ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Empty price field");
         } catch (NumberFormatException e) {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
         }
-        attraction.setPrice(floatPrice);
+        attraction.setPrice(decimalPrice);
         attraction.setName(name);
         if(maintenanceid != null) {
             Maintenance maintenance = maintenanceRepository.findOne(UUID.fromString(maintenanceid));
@@ -130,17 +132,17 @@ public class AttractionServiceImpl implements AttractionService {
             if (category == null)
                 return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
         }
-        Float floatPrice = null;
+        BigDecimal decimalPrice = null;
         try {
             if(price != null)
-                floatPrice = Float.parseFloat(price);
+                decimalPrice = new BigDecimal(price);
         } catch (NumberFormatException e) {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong format of price field");
         }
         if(name != null && !name.isEmpty())
             existingAttraction.setName(name);
-        if(floatPrice != null)
-            existingAttraction.setPrice(floatPrice);
+        if(decimalPrice != null)
+            existingAttraction.setPrice(decimalPrice);
         if(description != null && !description.isEmpty())
             existingAttraction.setDescription(description);
         if(category != null)
