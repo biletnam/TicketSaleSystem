@@ -2,7 +2,6 @@ package ru.tersoft.ticketsale.service.impl;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.tersoft.ticketsale.controller.AttractionController;
 import ru.tersoft.ticketsale.entity.Attraction;
 import ru.tersoft.ticketsale.entity.Category;
 import ru.tersoft.ticketsale.entity.Maintenance;
@@ -101,11 +99,18 @@ public class AttractionServiceImpl implements AttractionService {
             else
                 return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
         }
-        attraction = attractionRepository.saveAndFlush(attraction);
-        if(image != null)
-            attraction = saveImage(attraction, image);
-        else
+        if(image != null && !image.isEmpty()) {
+            try {
+                attraction = saveImage(attraction, image);
+                if(attraction == null)
+                    return ResponseFactory.createErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                            "Unsupported image content type");
+            } catch (IOException e) {
+                return ResponseFactory.createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+        } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Image was not selected");
+        }
         return ResponseFactory.createResponse(attractionRepository.saveAndFlush(attraction));
     }
 
@@ -152,39 +157,38 @@ public class AttractionServiceImpl implements AttractionService {
             if(maintenance != null)
                 existingAttraction.setMaintenance(maintenance);
             else
-                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
+                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND,
+                        "Maintenance with such id was not found");
         }
-        if(image != null) {
+        if(image != null && !image.isEmpty()) {
             deleteImage(existingAttraction.getId());
-            existingAttraction = saveImage(existingAttraction, image);
+            try {
+                existingAttraction = saveImage(existingAttraction, image);
+                if(existingAttraction == null)
+                    return ResponseFactory.createErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                            "Unsupported image content type");
+            } catch (IOException e) {
+                return ResponseFactory.createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            }
         }
         return ResponseFactory.createResponse(attractionRepository.saveAndFlush(existingAttraction));
     }
 
-    private Attraction saveImage(Attraction attraction, MultipartFile image) {
-        try {
-            if (!image.isEmpty()) {
-                if(image.getContentType().equals("image/png")) {
-                    String filename = imagesLocation + "attractions/" + attraction.getId() + ".png";
-                    File file = new File(filename);
-                    image.transferTo(file);
-                    Thumbnails.of(file)
-                            .forceSize(imagesWidth, imagesHeight)
-                            .outputFormat("png")
-                            .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
-                    attraction.setImage("/img/attractions/" + attraction.getId() + ".png");
-                    attraction.setThumbnail("/img/attractions/thumbnail."
-                            + attraction.getId() + ".png");
-                    return attraction;
-                }
-            }
-        }
-        catch(IOException e) {
-            Logger log = Logger.getLogger(AttractionController.class);
-            log.error(e);
-            //TODO: Exception handler
-        }
-        return null;
+    private Attraction saveImage(Attraction attraction, MultipartFile image) throws IOException {
+        if(image.getContentType().equals("image/png")) {
+            attraction = attractionRepository.saveAndFlush(attraction);
+            String filename = imagesLocation + "attractions/" + attraction.getId() + ".png";
+            File file = new File(filename);
+            image.transferTo(file);
+            Thumbnails.of(file)
+                    .forceSize(imagesWidth, imagesHeight)
+                    .outputFormat("png")
+                    .toFiles(Rename.PREFIX_DOT_THUMBNAIL);
+            attraction.setImage("/img/attractions/" + attraction.getId() + ".png");
+            attraction.setThumbnail("/img/attractions/thumbnail."
+                    + attraction.getId() + ".png");
+            return attraction;
+        } else return null;
     }
 
     private Boolean deleteImage(UUID attractionid) {

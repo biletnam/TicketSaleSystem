@@ -107,7 +107,12 @@ public class OrderServiceImpl implements OrderService {
             order.setPayed(true);
             for(Ticket ticket : order.getTickets()) {
                 ticket.setEnabled(true);
-                ticket.setCode(generateCode(ticket.getId()));
+                try {
+                    String code = generateCode(ticket.getId());
+                    ticket.setCode(code);
+                } catch(WriterException | IOException e) {
+                    return ResponseFactory.createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                }
                 ticketRepository.saveAndFlush(ticket);
             }
             return ResponseFactory.createResponse(orderRepository.saveAndFlush(order));
@@ -166,43 +171,38 @@ public class OrderServiceImpl implements OrderService {
         return myFile.delete();
     }
 
-    private String generateCode(UUID ticketid) {
+    private String generateCode(UUID ticketid) throws WriterException, IOException {
         String id = ticketid.toString();
         String filePath = imagesLocation + "qr/" + id + ".png";
         int size = 150;
         String fileType = "png";
         File myFile = new File(filePath);
-        try {
-            myFile.createNewFile();
-            Map<EncodeHintType, Object> hintMap = new EnumMap<>(EncodeHintType.class);
-            hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            hintMap.put(EncodeHintType.MARGIN, 1);
-            hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        myFile.createNewFile();
+        Map<EncodeHintType, Object> hintMap = new EnumMap<>(EncodeHintType.class);
+        hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hintMap.put(EncodeHintType.MARGIN, 1);
+        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix byteMatrix = qrCodeWriter.encode(id, BarcodeFormat.QR_CODE, size,
-                    size, hintMap);
-            int width = byteMatrix.getWidth();
-            BufferedImage image = new BufferedImage(width, width,
-                    BufferedImage.TYPE_INT_RGB);
-            image.createGraphics();
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix byteMatrix = qrCodeWriter.encode(id, BarcodeFormat.QR_CODE, size,
+                size, hintMap);
+        int width = byteMatrix.getWidth();
+        BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+        image.createGraphics();
 
-            Graphics2D graphics = (Graphics2D) image.getGraphics();
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, 0, width, width);
-            graphics.setColor(Color.BLACK);
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, width, width);
+        graphics.setColor(Color.BLACK);
 
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < width; j++) {
-                    if (byteMatrix.get(i, j)) {
-                        graphics.fillRect(i, j, 1, 1);
-                    }
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < width; j++) {
+                if (byteMatrix.get(i, j)) {
+                    graphics.fillRect(i, j, 1, 1);
                 }
             }
-            ImageIO.write(image, fileType, myFile);
-        } catch (WriterException | IOException e) {
-            e.printStackTrace();
         }
+        ImageIO.write(image, fileType, myFile);
         return "/img/qr/" + id + ".png";
     }
 
