@@ -193,11 +193,11 @@ public class AttractionServiceImpl implements AttractionService {
 
     private Boolean deleteImage(UUID attractionid) {
         String id = attractionid.toString();
-        String filePath = imagesLocation + "attractions/" + id + ".jpg";
+        String filePath = imagesLocation + "attractions/" + id + ".png";
         File myFile = new File(filePath);
         if(myFile.exists()) {
             boolean ans = myFile.delete();
-            filePath = imagesLocation + "attractions/thumbnail." + id + ".jpg";
+            filePath = imagesLocation + "attractions/thumbnail." + id + ".png";
             myFile = new File(filePath);
             return ans && myFile.delete();
         } else {
