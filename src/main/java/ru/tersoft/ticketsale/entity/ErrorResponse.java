@@ -1,5 +1,7 @@
 package ru.tersoft.ticketsale.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Calendar;
 
 public class ErrorResponse {
@@ -29,6 +31,7 @@ public class ErrorResponse {
         this.code = code;
     }
 
+    @JsonProperty("error_description")
     public String getDescription() {
         return error_description;
     }
