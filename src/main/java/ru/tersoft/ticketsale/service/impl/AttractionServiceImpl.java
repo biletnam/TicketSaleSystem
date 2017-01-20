@@ -15,6 +15,7 @@ import ru.tersoft.ticketsale.entity.Maintenance;
 import ru.tersoft.ticketsale.repository.AttractionRepository;
 import ru.tersoft.ticketsale.repository.CategoryRepository;
 import ru.tersoft.ticketsale.repository.MaintenanceRepository;
+import ru.tersoft.ticketsale.repository.TicketRepository;
 import ru.tersoft.ticketsale.service.AttractionService;
 import ru.tersoft.ticketsale.utils.ResponseFactory;
 
@@ -30,6 +31,7 @@ public class AttractionServiceImpl implements AttractionService {
     private final AttractionRepository attractionRepository;
     private final CategoryRepository categoryRepository;
     private final MaintenanceRepository maintenanceRepository;
+    private final TicketRepository ticketRepository;
 
     @Value("${ticketsale.images-folder}")
     private String imagesLocation;
@@ -40,10 +42,11 @@ public class AttractionServiceImpl implements AttractionService {
     private int imagesWidth;
 
     @Autowired
-    public AttractionServiceImpl(AttractionRepository attractionRepository, CategoryRepository categoryRepository, MaintenanceRepository maintenanceRepository) {
+    public AttractionServiceImpl(AttractionRepository attractionRepository, CategoryRepository categoryRepository, MaintenanceRepository maintenanceRepository, TicketRepository ticketRepository) {
         this.attractionRepository = attractionRepository;
         this.categoryRepository = categoryRepository;
         this.maintenanceRepository = maintenanceRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     public ResponseEntity<?> getAll() {
@@ -118,6 +121,7 @@ public class AttractionServiceImpl implements AttractionService {
         if(attractionRepository.findOne(id) == null) {
             return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
         } else {
+            ticketRepository.deleteByAttraction(attractionRepository.findOne(id));
             deleteImage(id);
             attractionRepository.delete(id);
             return ResponseFactory.createResponse();
