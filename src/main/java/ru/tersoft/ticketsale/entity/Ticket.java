@@ -1,17 +1,14 @@
 package ru.tersoft.ticketsale.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -29,13 +26,6 @@ public class Ticket implements Serializable {
     @JoinColumn(name = "attraction", nullable = false)
     @ApiModelProperty(required = true)
     private Attraction attraction;
-
-    @Column(name = "ticketdate", columnDefinition = "DATE", nullable = false)
-    @ApiModelProperty(required = true, example = "1970-01-01")
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @JsonFormat(pattern="yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
-    private Date ticketdate;
 
     @Column(name = "code")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -70,14 +60,6 @@ public class Ticket implements Serializable {
 
     public void setOrder(Order order) {
         this.order = order;
-    }
-
-    public Date getTicketdate() {
-        return ticketdate;
-    }
-
-    public void setTicketdate(Date ticketdate) {
-        this.ticketdate = ticketdate;
     }
 
     public Boolean getEnabled() {

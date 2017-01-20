@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.ticketsale.entity.Account;
 import ru.tersoft.ticketsale.repository.AccountRepository;
+import ru.tersoft.ticketsale.repository.OrderRepository;
 import ru.tersoft.ticketsale.service.AccountService;
 import ru.tersoft.ticketsale.utils.ResponseFactory;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Transactional
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final OrderRepository orderRepository;
 
     public Account findUserByMail(String mail) {
         List<Account> accounts = (List<Account>)accountRepository.findByMail(mail);
@@ -28,8 +30,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, OrderRepository orderRepository) {
         this.accountRepository = accountRepository;
+        this.orderRepository = orderRepository;
     }
 
     public ResponseEntity<?> getAll(int pagenum, int limit) {

@@ -1,6 +1,7 @@
 package ru.tersoft.ticketsale.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
@@ -34,18 +35,27 @@ public class Order implements Serializable {
     @ApiModelProperty(required = true)
     private List<Ticket> tickets;
 
-    @Column(name = "orderdate", columnDefinition = "DATE", nullable = false)
+    @Column(name = "orderdate", columnDefinition = "DATE")
+    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Date orderdate;
+
+    @Column(name = "visitdate", columnDefinition = "DATE")
     @ApiModelProperty(required = true, example = "1970-01-01")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
-    private Date orderdate;
+    private Date visitdate;
 
     @Column(name = "total", columnDefinition = "decimal(19,4)")
     @ApiModelProperty(example = "999.99")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private BigDecimal total;
 
     @Column(name = "payed")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Boolean payed;
 
     public UUID getId() {
@@ -94,5 +104,13 @@ public class Order implements Serializable {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Date getVisitdate() {
+        return visitdate;
+    }
+
+    public void setVisitdate(Date visitdate) {
+        this.visitdate = visitdate;
     }
 }
