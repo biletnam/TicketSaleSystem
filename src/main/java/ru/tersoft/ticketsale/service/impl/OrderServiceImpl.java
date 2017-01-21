@@ -117,6 +117,7 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> addTickets(Account account, List<String> attractions) {
         if(attractions.size() > 0) {
             Order cart = (Order)getCart(account).getBody();
+            List<Ticket> tickets = new ArrayList<>();
             for(String attraction : attractions) {
                 Attraction existingAttraction = attractionRepository.findOne(UUID.fromString(attraction));
                 if(existingAttraction == null)
@@ -125,8 +126,9 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setOrder(cart);
                 ticket.setAttraction(existingAttraction);
                 ticket.setEnabled(false);
-                ticketRepository.saveAndFlush(ticket);
+                tickets.add(ticketRepository.saveAndFlush(ticket));
             }
+            cart.setTickets(tickets);
             return ResponseFactory.createResponse(orderRepository.saveAndFlush(countTotal(cart)));
         } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
