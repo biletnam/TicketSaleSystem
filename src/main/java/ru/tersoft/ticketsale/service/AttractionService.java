@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public interface AttractionService {
     ResponseEntity<?> getAll();
-    ResponseEntity<?> getByCategory(UUID id);
     ResponseEntity<?> get(UUID id);
     ResponseEntity<?> add(String name, String description, String cat, String price,
                           String maintenanceid, MultipartFile image);

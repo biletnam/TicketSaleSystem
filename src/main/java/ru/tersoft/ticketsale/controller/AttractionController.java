@@ -27,24 +27,18 @@ public class AttractionController {
         return attractionService.getAll();
     }
 
-    @RequestMapping(value = "/cat/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get list of attractions by category id")
-    public ResponseEntity<?> getByCategory(@PathVariable("id") UUID id) {
-        return attractionService.getByCategory(id);
-    }
-
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "", method = RequestMethod.POST)
-    @ApiOperation(value = "Add new attraction", notes = "Admin access required", response = Attraction.class)
+    @ApiOperation(value = "Create new attraction", notes = "Admin access required", response = Attraction.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestPart(value = "name") String name,
-                                 @RequestPart(value = "description") String description,
-                                 @RequestPart(value = "cat", required = false) String cat,
-                                 @RequestPart(value = "price") String price,
-                                 @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
-                                 @RequestPart(value = "image") MultipartFile image) {
+    public ResponseEntity<?> createAttraction(@RequestPart(value = "name") String name,
+                                              @RequestPart(value = "description") String description,
+                                              @RequestPart(value = "cat", required = false) String cat,
+                                              @RequestPart(value = "price") String price,
+                                              @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
+                                              @RequestPart(value = "image") MultipartFile image) {
         return attractionService.add(name, description, cat, price, maintenanceid, image);
     }
 
@@ -54,13 +48,13 @@ public class AttractionController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> deleteAttraction(@PathVariable("id") UUID id) {
         return attractionService.delete(id);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get attraction by id", response = Attraction.class)
-    public ResponseEntity<?> get(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> getAttraction(@PathVariable("id") UUID id) {
         return attractionService.get(id);
     }
 
@@ -70,13 +64,13 @@ public class AttractionController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit attraction info", notes = "Admin access required", response = Attraction.class)
-    public ResponseEntity<?> edit(@PathVariable("id") UUID id,
-                                  @RequestPart(value = "name", required = false) String name,
-                                  @RequestPart(value = "description", required = false) String description,
-                                  @RequestPart(value = "cat", required = false) String cat,
-                                  @RequestPart(value = "price", required = false) String price,
-                                  @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
-                                  @RequestPart(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<?> editAttraction(@PathVariable("id") UUID id,
+                                            @RequestPart(value = "name", required = false) String name,
+                                            @RequestPart(value = "description", required = false) String description,
+                                            @RequestPart(value = "cat", required = false) String cat,
+                                            @RequestPart(value = "price", required = false) String price,
+                                            @RequestPart(value = "maintenanceid", required = false) String maintenanceid,
+                                            @RequestPart(value = "image", required = false) MultipartFile image) {
         return attractionService.edit(id, name, description, cat, price, maintenanceid, image);
     }
 }

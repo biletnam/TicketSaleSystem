@@ -26,18 +26,8 @@ public class MaintenanceController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestBody Maintenance maintenance) {
+    public ResponseEntity<?> addMaintenance(@RequestBody Maintenance maintenance) {
         return maintenanceService.add(maintenance);
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "", method = RequestMethod.PUT)
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
-    })
-    @ApiOperation(value = "Edit maintenance info", notes = "Admin access required", response = Maintenance.class)
-    public ResponseEntity<?> edit(@RequestBody Maintenance maintenance) {
-        return maintenanceService.edit(maintenance);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -46,7 +36,7 @@ public class MaintenanceController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> deleteMaintenance(@PathVariable("id") UUID id) {
         return maintenanceService.delete(id);
     }
 }

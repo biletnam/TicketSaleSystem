@@ -2,7 +2,6 @@ package ru.tersoft.ticketsale.service;
 
 import org.springframework.http.ResponseEntity;
 import ru.tersoft.ticketsale.entity.Account;
-import ru.tersoft.ticketsale.entity.Ticket;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,7 @@ public interface OrderService {
     ResponseEntity<?> getCart(Account account);
     ResponseEntity<?> getByAccount(Account account);
     ResponseEntity<?> finishOrder(Account account, Date visitdate);
-    ResponseEntity<?> addTickets(Account account, List<Ticket> tickets);
+    ResponseEntity<?> addTickets(Account account, List<String> attractions);
     ResponseEntity<?> disableTicket(UUID ticketid);
     ResponseEntity<?> deleteTicket(UUID ticketid, Account account);
 }

@@ -114,18 +114,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<?> addTickets(Account account, List<Ticket> tickets) {
-        if(tickets.size() > 0) {
+    public ResponseEntity<?> addTickets(Account account, List<String> attractions) {
+        if(attractions.size() > 0) {
             Order cart = (Order)getCart(account).getBody();
-            for(Ticket ticket : tickets) {
+            for(String attraction : attractions) {
+                Attraction existingAttraction = attractionRepository.findOne(UUID.fromString(attraction));
+                if(existingAttraction == null)
+                    return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+                Ticket ticket = new Ticket();
                 ticket.setOrder(cart);
-                ticket.setAttraction(attractionRepository.findOne(ticket.getAttraction().getId()));
+                ticket.setAttraction(existingAttraction);
                 ticket.setEnabled(false);
                 ticketRepository.saveAndFlush(ticket);
             }
             return ResponseFactory.createResponse(orderRepository.saveAndFlush(countTotal(cart)));
         } else {
-            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty tickets");
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
         }
     }
 

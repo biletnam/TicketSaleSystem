@@ -32,7 +32,7 @@ public class CategoryController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> add(@RequestBody Category category) {
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
         return categoryService.add(category);
     }
 
@@ -42,7 +42,7 @@ public class CategoryController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit category", notes = "Admin access required", response = Category.class)
-    public ResponseEntity<?> edit(@RequestBody Category category) {
+    public ResponseEntity<?> editCategory(@RequestBody Category category) {
         return categoryService.edit(category);
     }
 
@@ -52,7 +52,7 @@ public class CategoryController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") UUID id) {
         return categoryService.delete(id);
     }
 }

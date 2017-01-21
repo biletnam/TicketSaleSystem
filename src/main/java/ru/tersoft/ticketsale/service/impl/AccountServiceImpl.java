@@ -19,7 +19,6 @@ import java.util.UUID;
 @Transactional
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
-    private final OrderRepository orderRepository;
 
     public Account findUserByMail(String mail) {
         List<Account> accounts = (List<Account>)accountRepository.findByMail(mail);
@@ -32,7 +31,6 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository, OrderRepository orderRepository) {
         this.accountRepository = accountRepository;
-        this.orderRepository = orderRepository;
     }
 
     public ResponseEntity<?> getAll(int pagenum, int limit) {

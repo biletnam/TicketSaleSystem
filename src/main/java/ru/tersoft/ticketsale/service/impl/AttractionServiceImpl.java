@@ -22,7 +22,6 @@ import ru.tersoft.ticketsale.utils.ResponseFactory;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Service("AttractionService")
@@ -51,20 +50,6 @@ public class AttractionServiceImpl implements AttractionService {
 
     public ResponseEntity<?> getAll() {
         return ResponseFactory.createResponse(attractionRepository.findAll());
-    }
-
-    public ResponseEntity<?> getByCategory(UUID id) {
-        if(id != null) {
-            Category category = categoryRepository.findOne(id);
-            if(category == null) {
-                return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Category with such id was not found");
-            } else {
-                List<Attraction> attractionList = (List<Attraction>)attractionRepository.findByCategory(category);
-                return ResponseFactory.createResponse(attractionList);
-            }
-        } else {
-            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Category id was not passed");
-        }
     }
 
     public ResponseEntity<?> get(UUID id) {

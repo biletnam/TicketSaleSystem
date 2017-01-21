@@ -47,20 +47,4 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             return ResponseFactory.createResponse();
         }
     }
-
-    @Override
-    public ResponseEntity<?> edit(Maintenance maintenance) {
-        if(maintenance == null)
-            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty maintenance");
-        Maintenance existingMaintenance = maintenanceRepository.findOne(maintenance.getId());
-        if(existingMaintenance == null)
-            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
-        if(maintenance.getStartdate() != null)
-            existingMaintenance.setStartdate(maintenance.getStartdate());
-        if(maintenance.getEnddate() != null)
-            existingMaintenance.setEnddate(maintenance.getEnddate());
-        if(maintenance.getReason() != null && !maintenance.getReason().isEmpty())
-            existingMaintenance.setReason(maintenance.getReason());
-        return ResponseFactory.createResponse(maintenanceRepository.saveAndFlush(existingMaintenance));
-    }
 }

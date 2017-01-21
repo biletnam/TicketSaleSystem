@@ -28,24 +28,13 @@ public class DialogController {
     private AccountService accountService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    @ApiOperation(value = "Get all dialogs", notes = "Admin access required")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
-    })
-    public ResponseEntity<?> getDialogs(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
-                                    @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
-        return dialogService.getAll(pageNum, limit);
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/waiting", method = RequestMethod.GET)
-    @ApiOperation(value = "Get dialogs by answered flag", notes = "Admin access required")
+    @ApiOperation(value = "Get dialogs waiting for answer", notes = "Admin access required")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> getByAnswered(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
-                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+    public ResponseEntity<?> getWaitingDialogs(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                               @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
         return dialogService.getByAnswered(pageNum, limit);
     }
 
@@ -55,21 +44,20 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> getByUser(@PathVariable("id") UUID userid,
-                                   @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
-                                   @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+    public ResponseEntity<?> getDialogsByUser(@PathVariable("id") UUID userid,
+                                              @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                              @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
         return dialogService.getByUser(userid, pageNum, limit);
     }
 
-    @RequestMapping(value = "/user/", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get dialogs for current user")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> getByCurrentUser(Principal principal,
-                                  @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
-                                  @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
-
+    public ResponseEntity<?> getDialogs(Principal principal,
+                                        @RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                        @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
         if(principal == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
@@ -81,7 +69,7 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> getById(@PathVariable("id") UUID dialogid) {
+    public ResponseEntity<?> getDialogById(@PathVariable("id") UUID dialogid) {
         return dialogService.getById(dialogid);
     }
 
@@ -144,7 +132,7 @@ public class DialogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    public ResponseEntity<?> delete(@PathVariable("id") UUID dialogid) {
+    public ResponseEntity<?> deleteDialog(@PathVariable("id") UUID dialogid) {
         return dialogService.delete(dialogid);
     }
 }

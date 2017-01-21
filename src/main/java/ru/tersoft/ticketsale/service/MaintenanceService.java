@@ -9,5 +9,4 @@ public interface MaintenanceService {
     Maintenance get(UUID id);
     ResponseEntity<?> add(Maintenance maintenance);
     ResponseEntity<?> delete(UUID id);
-    ResponseEntity<?> edit(Maintenance maintenance);
 }

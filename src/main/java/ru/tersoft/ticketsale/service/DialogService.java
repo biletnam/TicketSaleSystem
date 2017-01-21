@@ -6,7 +6,6 @@ import ru.tersoft.ticketsale.entity.Message;
 import java.util.UUID;
 
 public interface DialogService {
-    ResponseEntity<?> getAll(int page, int limit);
     ResponseEntity<?> getById(UUID id);
     ResponseEntity<?> getByAnswered(int page, int limit);
     ResponseEntity<?> getByUser(UUID userid, int page, int limit);

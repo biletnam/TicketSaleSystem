@@ -33,10 +33,6 @@ public class DialogServiceImpl implements DialogService {
         this.messageRepository = messageRepository;
     }
 
-    public ResponseEntity<?> getAll(int page, int limit) {
-        return ResponseFactory.createResponse(dialogRepository.findAll(new PageRequest(page, limit)));
-    }
-
     @Override
     public ResponseEntity<?> getById(UUID id) {
         Dialog dialog = dialogRepository.findOne(id);

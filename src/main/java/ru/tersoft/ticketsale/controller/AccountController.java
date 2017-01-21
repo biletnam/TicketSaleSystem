@@ -30,13 +30,13 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     public ResponseEntity<?> getAccounts(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
-                                     @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+                                         @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
         return accountService.getAll(pageNum, limit);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account", response = Account.class)
-    public ResponseEntity<?> add(@RequestBody Account account) {
+    public ResponseEntity<?> registerNewAccount(@RequestBody Account account) {
         return accountService.add(account);
     }
 
@@ -46,7 +46,7 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> deleteAccount(@PathVariable("id") UUID id) {
         return accountService.delete(id);
     }
 
@@ -56,7 +56,7 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Get account data by id", notes = "Admin access required", response = Account.class)
-    public ResponseEntity<?> getById(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> getAccountById(@PathVariable("id") UUID id) {
         return accountService.get(id);
     }
 
@@ -65,7 +65,7 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Get account data of current user", response = Account.class)
-    public ResponseEntity<?> get(Principal principal) {
+    public ResponseEntity<?> getAccount(Principal principal) {
         if(principal == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
@@ -83,7 +83,7 @@ public class AccountController {
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
     @ApiOperation(value = "Edit account data", response = Account.class, notes = "You don't need to pass account id here")
-    public ResponseEntity<?> edit(@RequestBody Account account, Principal principal) {
+    public ResponseEntity<?> editAccount(@RequestBody Account account, Principal principal) {
         if(principal == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         UUID userid = accountService.findUserByMail(principal.getName()).getId();
