@@ -136,21 +136,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<?> deleteTicket(UUID ticketid, Account account) {
-        Ticket ticket = ticketRepository.findOne(ticketid);
-        if(ticket != null) {
-            if(!ticket.getOrder().getAccount().getMail().equals(account.getMail()))
-                return ResponseFactory.createErrorResponse(HttpStatus.UNAUTHORIZED, "Access denied");
-            if(ticket.getOrder().isPayed())
-                return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "You could not delete ticket from payed order");
-            deleteCode(ticketid);
-            UUID orderid = ticket.getOrder().getId();
-            ticketRepository.delete(ticket);
-            Order order = orderRepository.findOne(orderid);
-            Order savedOrder = orderRepository.saveAndFlush(order);
-            return ResponseFactory.createResponse(countTotal(savedOrder));
+    public ResponseEntity<?> deleteTickets(Account account, List<String> attractions) {
+        if(attractions.size() > 0) {
+            Order cart = orderRepository.findCart(account);
+            List<Ticket> tickets = cart.getTickets();
+            for (String attrid : attractions) {
+                Attraction attraction = attractionRepository.findOne(UUID.fromString(attrid));
+                if (attraction == null)
+                    return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Attraction with such id was not found");
+                for (Ticket ticket : tickets) {
+                    if(ticket.getAttraction().getId().equals(attraction.getId())) {
+                        tickets.remove(ticket);
+                        ticketRepository.delete(ticket);
+                        break;
+                    }
+                }
+            }
+            cart.setTickets(tickets);
+            cart = orderRepository.saveAndFlush(cart);
+            return ResponseFactory.createResponse(countTotal(cart));
         } else {
-            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Ticket with such id was not found");
+            return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
         }
     }
 

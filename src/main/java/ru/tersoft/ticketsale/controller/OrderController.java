@@ -104,11 +104,11 @@ public class OrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
     })
-    @RequestMapping(value = "tickets/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteTicket(@PathVariable("id") UUID id, Principal principal) {
+    @RequestMapping(value = "tickets", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteTickets(Principal principal, @RequestBody List<String> attractions) {
         if(principal == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         else
-            return orderService.deleteTicket(id, accountService.findUserByMail(principal.getName()));
+            return orderService.deleteTickets(accountService.findUserByMail(principal.getName()), attractions);
     }
 }

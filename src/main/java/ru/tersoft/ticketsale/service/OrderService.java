@@ -14,5 +14,5 @@ public interface OrderService {
     ResponseEntity<?> finishOrder(Account account, Date visitdate);
     ResponseEntity<?> addTickets(Account account, List<String> attractions);
     ResponseEntity<?> disableTicket(UUID ticketid);
-    ResponseEntity<?> deleteTicket(UUID ticketid, Account account);
+    ResponseEntity<?> deleteTickets(Account account, List<String> attractions);
 }
