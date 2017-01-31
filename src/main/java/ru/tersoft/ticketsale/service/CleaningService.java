@@ -53,9 +53,6 @@ public class CleaningService {
                     if (maintenance.getEnddate().before(today.getTime())) {
                         attraction.setMaintenance(null);
                         maintenanceRepository.delete(maintenance);
-                        log.info("Deleted expired maintenance "
-                                + maintenance.getId().toString()
-                                + " of attraction " + attraction.getId().toString());
                     }
                 }
             }
@@ -74,8 +71,10 @@ public class CleaningService {
             for (Order order : orders) {
                 List<Ticket> tickets = order.getTickets();
                 for (Ticket ticket : tickets) {
-                    ticket.setEnabled(false);
-                    ticketRepository.saveAndFlush(ticket);
+                    if(ticket.getEnabled()) {
+                        ticket.setEnabled(false);
+                        ticketRepository.saveAndFlush(ticket);
+                    }
                 }
                 order.setTickets(tickets);
                 orderRepository.saveAndFlush(order);

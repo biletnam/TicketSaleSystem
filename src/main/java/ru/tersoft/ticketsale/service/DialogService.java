@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface DialogService {
     ResponseEntity<?> getById(UUID id);
     ResponseEntity<?> getByAnswered(int page, int limit);
+    ResponseEntity<?> getOpenDialogs(int page, int limit);
     ResponseEntity<?> getByUser(UUID userid, int page, int limit);
     ResponseEntity<?> start(Message message, String title);
     ResponseEntity<?> addAnswer(UUID dialogid, Message message, Boolean closed);

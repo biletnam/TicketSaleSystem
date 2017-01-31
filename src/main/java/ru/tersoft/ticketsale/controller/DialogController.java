@@ -50,6 +50,17 @@ public class DialogController {
         return dialogService.getByUser(userid, pageNum, limit);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "/open", method = RequestMethod.GET)
+    @ApiOperation(value = "Get all open dialogs", notes = "Admin access required", response = Dialog.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "access_token", value = "Access token", required = true, dataType = "string", paramType = "query"),
+    })
+    public ResponseEntity<?> getOpenDialogs(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNum,
+                                              @RequestParam(value = "limit", defaultValue = "20", required = false) int limit) {
+        return dialogService.getOpenDialogs(pageNum, limit);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value = "Get dialogs for current user")
     @ApiImplicitParams({

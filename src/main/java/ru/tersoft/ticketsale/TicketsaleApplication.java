@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import ru.tersoft.ticketsale.service.CleaningService;
 
 
 @SpringBootApplication
@@ -14,6 +16,9 @@ public class TicketsaleApplication extends SpringBootServletInitializer {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(TicketsaleApplication.class, args);
+		ConfigurableApplicationContext ctx = SpringApplication.run(TicketsaleApplication.class, args);
+        CleaningService cleaningService = ctx.getBean(CleaningService.class);
+        cleaningService.cleanMaintenances();
+        cleaningService.disableTickets();
 	}
 }

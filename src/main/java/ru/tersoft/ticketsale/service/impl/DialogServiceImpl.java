@@ -47,6 +47,10 @@ public class DialogServiceImpl implements DialogService {
         return ResponseFactory.createResponse(dialogRepository.findByAnswered(new PageRequest(page, limit)));
     }
 
+    public ResponseEntity<?> getOpenDialogs(int page, int limit) {
+        return ResponseFactory.createResponse(dialogRepository.findOpenDialogs(new PageRequest(page, limit)));
+    }
+
     @Override
     public ResponseEntity<?> getByUser(UUID userid, int page, int limit) {
         Account account = accountRepository.findOne(userid);
