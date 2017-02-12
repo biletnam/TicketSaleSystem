@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> finishOrder(Account account, Date visitdate) {
-        Order cart = (Order)getCart(account).getBody();
+        Order cart = (Order) getCart(account).getBody();
         if(cart.getTickets().size() == 0)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Shopping cart is empty");
         cart.setPayed(true);
@@ -116,8 +116,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<?> addTickets(Account account, List<String> attractions) {
         if(attractions.size() > 0) {
-            Order cart = (Order)getCart(account).getBody();
-            List<Ticket> tickets = new ArrayList<>();
+            Order cart = (Order) getCart(account).getBody();
+            BigDecimal total = cart.getTotal();
+            List<Ticket> tickets = cart.getTickets();
             for(String attraction : attractions) {
                 Attraction existingAttraction = attractionRepository.findOne(UUID.fromString(attraction));
                 if(existingAttraction == null)
@@ -126,10 +127,12 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setOrder(cart);
                 ticket.setAttraction(existingAttraction);
                 ticket.setEnabled(false);
+                total = total.add(ticket.getAttraction().getPrice());
                 tickets.add(ticketRepository.saveAndFlush(ticket));
             }
             cart.setTickets(tickets);
-            return ResponseFactory.createResponse(orderRepository.saveAndFlush(countTotal(cart)));
+            cart.setTotal(total);
+            return ResponseFactory.createResponse(orderRepository.saveAndFlush(cart));
         } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
         }
@@ -139,6 +142,7 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> deleteTickets(Account account, List<String> attractions) {
         if(attractions.size() > 0) {
             Order cart = orderRepository.findCart(account);
+            BigDecimal total = cart.getTotal();
             List<Ticket> tickets = cart.getTickets();
             for (String attrid : attractions) {
                 Attraction attraction = attractionRepository.findOne(UUID.fromString(attrid));
@@ -147,14 +151,16 @@ public class OrderServiceImpl implements OrderService {
                 for (Ticket ticket : tickets) {
                     if(ticket.getAttraction().getId().equals(attraction.getId())) {
                         tickets.remove(ticket);
+                        total = total.subtract(ticket.getAttraction().getPrice());
                         ticketRepository.delete(ticket);
                         break;
                     }
                 }
             }
             cart.setTickets(tickets);
+            cart.setTotal(total);
             cart = orderRepository.saveAndFlush(cart);
-            return ResponseFactory.createResponse(countTotal(cart));
+            return ResponseFactory.createResponse(cart);
         } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
         }
@@ -213,16 +219,5 @@ public class OrderServiceImpl implements OrderService {
         }
         ImageIO.write(image, fileType, myFile);
         return "/img/qr/" + id + ".png";
-    }
-
-    private Order countTotal(Order order) {
-        List<Ticket> tickets = order.getTickets();
-        BigDecimal total = BigDecimal.ZERO;
-        for (Ticket ticket : tickets) {
-            Attraction currAttraction = attractionRepository.findOne(ticket.getAttraction().getId());
-            total = total.add(currAttraction.getPrice());
-        }
-        order.setTotal(total);
-        return order;
     }
 }
