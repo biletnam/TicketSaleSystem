@@ -77,10 +77,8 @@ public class AccountServiceImpl implements AccountService {
         Account existingAccount = accountRepository.findOne(account.getId());
         if(existingAccount == null)
             return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
-        if(account.getFirstname() != null)
-            existingAccount.setFirstname(account.getFirstname());
-        if(account.getLastname() != null)
-            existingAccount.setLastname(account.getLastname());
+        existingAccount.setFirstname(account.getFirstname());
+        existingAccount.setLastname(account.getLastname());
         if(account.getPassword() != null && !account.getPassword().isEmpty())
             existingAccount.setPassword(account.getPassword());
         if(account.getBirthdate() != null)
