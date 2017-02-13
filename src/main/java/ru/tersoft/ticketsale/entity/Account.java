@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -68,7 +69,7 @@ public class Account implements Serializable {
     }
 
     public void setFirstname(String firstname) {
-        this.firstname = firstname;
+        this.firstname = HtmlUtils.htmlEscape(firstname);
     }
 
     public String getLastname() {
@@ -76,7 +77,7 @@ public class Account implements Serializable {
     }
 
     public void setLastname(String lastname) {
-        this.lastname = lastname;
+        this.lastname = HtmlUtils.htmlEscape(lastname);
     }
 
     public String getMail() {
@@ -84,7 +85,7 @@ public class Account implements Serializable {
     }
 
     public void setMail(String mail) {
-        this.mail = mail;
+        this.mail = HtmlUtils.htmlEscape(mail);
     }
 
     public String getPassword() {

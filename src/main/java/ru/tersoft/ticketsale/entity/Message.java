@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -77,7 +78,7 @@ public class Message {
     }
 
     public void setText(String text) {
-        this.text = text;
+        this.text = HtmlUtils.htmlEscape(text);
     }
 
     public String getType() {

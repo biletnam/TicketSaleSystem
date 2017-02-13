@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -75,6 +76,6 @@ public class Dialog implements Serializable {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = HtmlUtils.htmlEscape(title);
     }
 }

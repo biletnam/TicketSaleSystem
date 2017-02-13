@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -61,7 +62,7 @@ public class Maintenance implements Serializable {
     }
 
     public void setReason(String reason) {
-        this.reason = reason;
+        this.reason = HtmlUtils.htmlEscape(reason);
     }
 
     public UUID getId() {

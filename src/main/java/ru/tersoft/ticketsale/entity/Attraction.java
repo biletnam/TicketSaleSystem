@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -62,7 +63,7 @@ public class Attraction implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = HtmlUtils.htmlEscape(name);
     }
 
     public String getDescription() {
@@ -70,7 +71,7 @@ public class Attraction implements Serializable {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = HtmlUtils.htmlEscape(description);
     }
 
     public String getImage() {
