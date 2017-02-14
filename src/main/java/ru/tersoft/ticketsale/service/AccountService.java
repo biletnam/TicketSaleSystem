@@ -10,7 +10,7 @@ public interface AccountService {
     ResponseEntity<?> get(UUID id);
     ResponseEntity<?> add(Account account);
     ResponseEntity<?> activate(String mail, String activationId);
-    ResponseEntity<?> changePass(String mail, String newPass);
+    ResponseEntity<?> changePass(String mail);
     Account findUserByMail(String mail);
     ResponseEntity<?> delete(UUID id);
     ResponseEntity<?> edit(Account account);

@@ -42,10 +42,9 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/newpass", method = RequestMethod.GET)
-    @ApiOperation(value = "Activate account", response = Account.class)
-    public ResponseEntity<?> changePass(@RequestParam(name = "mail") String mail,
-                                        @RequestParam(name = "pass") String password) {
-        return accountService.changePass(mail, password);
+    @ApiOperation(value = "Request new password", response = Account.class)
+    public ResponseEntity<?> changePass(@RequestParam(name = "mail") String mail) {
+        return accountService.changePass(mail);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
