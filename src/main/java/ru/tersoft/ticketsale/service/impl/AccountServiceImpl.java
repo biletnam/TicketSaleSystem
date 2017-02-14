@@ -69,7 +69,7 @@ public class AccountServiceImpl implements AccountService {
         }
         account.setPassword(newPass);
         mailService.sendNewPasswordMail(mail, newPass);
-        return ResponseFactory.createResponse(account);
+        return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));
     }
 
     public ResponseEntity<?> add(Account account) {
