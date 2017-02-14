@@ -9,6 +9,8 @@ public interface AccountService {
     ResponseEntity<?> getAll(int page, int limit);
     ResponseEntity<?> get(UUID id);
     ResponseEntity<?> add(Account account);
+    ResponseEntity<?> activate(String mail, String activationId);
+    ResponseEntity<?> changePass(String mail, String newPass);
     Account findUserByMail(String mail);
     ResponseEntity<?> delete(UUID id);
     ResponseEntity<?> edit(Account account);

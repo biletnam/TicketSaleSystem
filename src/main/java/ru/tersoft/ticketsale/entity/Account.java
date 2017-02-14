@@ -56,6 +56,13 @@ public class Account implements Serializable {
     @Column(name = "admin")
     private Boolean admin;
 
+    @Column(name = "activated")
+    private Boolean activated;
+
+    @Column(name = "activationid")
+    @Type(type = "uuid-char")
+    private UUID activationId;
+
     public UUID getId() {
         return id;
     }
@@ -85,7 +92,7 @@ public class Account implements Serializable {
     }
 
     public void setMail(String mail) {
-        this.mail = HtmlUtils.htmlEscape(mail);
+        this.mail = HtmlUtils.htmlEscape(mail).toLowerCase();
     }
 
     public String getPassword() {
@@ -126,5 +133,21 @@ public class Account implements Serializable {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
+    }
+
+    public UUID getActivationId() {
+        return activationId;
+    }
+
+    public void setActivationId(UUID activationId) {
+        this.activationId = activationId;
     }
 }

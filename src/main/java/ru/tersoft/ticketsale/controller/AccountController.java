@@ -34,6 +34,20 @@ public class AccountController {
         return accountService.getAll(pageNum, limit);
     }
 
+    @RequestMapping(value = "/activate", method = RequestMethod.GET)
+    @ApiOperation(value = "Activate account", response = Account.class)
+    public ResponseEntity<?> activate(@RequestParam(name = "mail") String mail,
+                                  @RequestParam(name = "activateid") String activationId) {
+        return accountService.activate(mail, activationId);
+    }
+
+    @RequestMapping(value = "/newpass", method = RequestMethod.GET)
+    @ApiOperation(value = "Activate account", response = Account.class)
+    public ResponseEntity<?> changePass(@RequestParam(name = "mail") String mail,
+                                        @RequestParam(name = "pass") String password) {
+        return accountService.changePass(mail, password);
+    }
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value = "Create new account", response = Account.class)
     public ResponseEntity<?> registerNewAccount(@RequestBody Account account) {

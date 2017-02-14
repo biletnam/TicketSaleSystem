@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tersoft.ticketsale.entity.Account;
 import ru.tersoft.ticketsale.repository.AccountRepository;
-import ru.tersoft.ticketsale.repository.OrderRepository;
 import ru.tersoft.ticketsale.service.AccountService;
+import ru.tersoft.ticketsale.service.MailService;
 import ru.tersoft.ticketsale.utils.ResponseFactory;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +20,8 @@ import java.util.UUID;
 @Transactional
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    @Resource(name = "MailService")
+    private MailService mailService;
 
     public Account findUserByMail(String mail) {
         List<Account> accounts = (List<Account>)accountRepository.findByMail(mail);
@@ -29,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, OrderRepository orderRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -43,17 +46,44 @@ public class AccountServiceImpl implements AccountService {
             return ResponseFactory.createResponse(account);
         else
             return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such id was not found");
+    }
 
+    public ResponseEntity<?> activate(String mail, String activationId) {
+        Account account = findUserByMail(mail);
+        if(account.getActivationId() != null) {
+            if (account.getActivationId().toString().equals(activationId)) {
+                account.setEnabled(true);
+                account.setActivated(true);
+                account.setActivationId(null);
+                return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));
+            }
+        }
+        return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong activation id");
+    }
+
+
+    public ResponseEntity<?> changePass(String mail, String newPass) {
+        Account account = findUserByMail(mail);
+        if(account == null) {
+            return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Account with such mail was not found");
+        }
+        account.setPassword(newPass);
+        mailService.sendNewPasswordMail(mail, newPass);
+        return ResponseFactory.createResponse(account);
     }
 
     public ResponseEntity<?> add(Account account) {
         if(account != null) {
             account.setAdmin(false);
+            account.setEnabled(false);
+            account.setActivated(false);
+            account.setActivationId(UUID.randomUUID());
             int avatarNumber = account.getMail().length() % 10;
             account.setAvatar("/img/avatars/identicon"+avatarNumber+".png");
-            if(account.isEnabled() == null) account.setEnabled(true);
-            if(checkMail(account.getMail()))
+            if(checkMail(account.getMail())) {
+                mailService.sendRegistrationMail(account);
                 return ResponseFactory.createResponse(accountRepository.saveAndFlush(account));
+            }
             else
                 return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "E-mail already in use");
         } else {
