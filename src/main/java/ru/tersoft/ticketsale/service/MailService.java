@@ -37,7 +37,7 @@ public class MailService {
     public void sendRegistrationMail(Account account) {
         try {
             MimeMessagePreparator preparator = mimeMessage -> {
-                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
+                MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED);
                 message.setTo(account.getMail());
                 message.setFrom(author);
                 message.setSubject("Mail confirmation");
