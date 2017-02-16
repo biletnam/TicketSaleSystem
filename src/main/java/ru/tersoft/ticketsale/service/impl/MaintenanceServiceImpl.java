@@ -1,5 +1,6 @@
 package ru.tersoft.ticketsale.service.impl;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import ru.tersoft.ticketsale.utils.ResponseFactory;
 import java.util.UUID;
 
 @Service("MaintenanceService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class MaintenanceServiceImpl implements MaintenanceService {
     private final MaintenanceRepository maintenanceRepository;
     private final AttractionRepository attractionRepository;

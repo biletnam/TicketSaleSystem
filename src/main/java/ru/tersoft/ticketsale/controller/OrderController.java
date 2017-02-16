@@ -50,7 +50,7 @@ public class OrderController {
         if(principal == null)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Wrong or empty access token");
         else
-            return orderService.getCart(accountService.findUserByMail(principal.getName()));
+            return ResponseFactory.createResponse(orderService.getCart(accountService.findUserByMail(principal.getName())));
     }
 
     @ApiOperation(value = "Get user's orders")

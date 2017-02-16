@@ -6,6 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ import java.util.*;
 import java.util.List;
 
 @Service("OrderService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final AttractionRepository attractionRepository;
@@ -66,17 +67,18 @@ public class OrderServiceImpl implements OrderService {
         Order cart = new Order();
         cart.setAccount(account);
         cart.setPayed(false);
+        cart.setTickets(new ArrayList<>());
         cart.setTotal(BigDecimal.ZERO);
         return orderRepository.saveAndFlush(cart);
     }
 
     @Override
-    public ResponseEntity<?> getCart(Account account) {
+    public Order getCart(Account account) {
         Order order = orderRepository.findCart(account);
         if (order != null) {
-            return ResponseFactory.createResponse(order);
+            return order;
         } else {
-            return ResponseFactory.createResponse(createCart(account));
+            return createCart(account);
         }
     }
 
@@ -93,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> finishOrder(Account account, Date visitdate) {
-        Order cart = (Order) getCart(account).getBody();
+        Order cart = getCart(account);
         if(cart.getTickets().size() == 0)
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Shopping cart is empty");
         cart.setPayed(true);
@@ -116,9 +118,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<?> addTickets(Account account, List<String> attractions) {
         if(attractions.size() > 0) {
-            Order cart = (Order) getCart(account).getBody();
-            BigDecimal total = cart.getTotal();
+            Order cart = getCart(account);
+            BigDecimal total = BigDecimal.ZERO;
             List<Ticket> tickets = cart.getTickets();
+            List<Ticket> newTickets = new ArrayList<>();
             for(String attraction : attractions) {
                 Attraction existingAttraction = attractionRepository.findOne(UUID.fromString(attraction));
                 if(existingAttraction == null)
@@ -127,8 +130,13 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setOrder(cart);
                 ticket.setAttraction(existingAttraction);
                 ticket.setEnabled(false);
+                tickets.size();
+                newTickets.add(ticketRepository.save(ticket));
+            }
+            ticketRepository.flush();
+            tickets.addAll(newTickets);
+            for(Ticket ticket : tickets) {
                 total = total.add(ticket.getAttraction().getPrice());
-                tickets.add(ticketRepository.saveAndFlush(ticket));
             }
             cart.setTickets(tickets);
             cart.setTotal(total);
@@ -142,8 +150,9 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> deleteTickets(Account account, List<String> attractions) {
         if(attractions.size() > 0) {
             Order cart = orderRepository.findCart(account);
-            BigDecimal total = cart.getTotal();
+            BigDecimal total = BigDecimal.ZERO;
             List<Ticket> tickets = cart.getTickets();
+            List<Ticket> deletedTickets = new ArrayList<>();
             for (String attrid : attractions) {
                 Attraction attraction = attractionRepository.findOne(UUID.fromString(attrid));
                 if (attraction == null)
@@ -151,16 +160,18 @@ public class OrderServiceImpl implements OrderService {
                 for (Ticket ticket : tickets) {
                     if(ticket.getAttraction().getId().equals(attraction.getId())) {
                         tickets.remove(ticket);
-                        total = total.subtract(ticket.getAttraction().getPrice());
-                        ticketRepository.delete(ticket);
+                        deletedTickets.add(ticket);
                         break;
                     }
                 }
             }
+            ticketRepository.delete(deletedTickets);
             cart.setTickets(tickets);
+            for(Ticket ticket : tickets) {
+                total = total.add(ticket.getAttraction().getPrice());
+            }
             cart.setTotal(total);
-            cart = orderRepository.saveAndFlush(cart);
-            return ResponseFactory.createResponse(cart);
+            return ResponseFactory.createResponse(orderRepository.saveAndFlush(cart));
         } else {
             return ResponseFactory.createErrorResponse(HttpStatus.BAD_REQUEST, "Passed empty attractions");
         }

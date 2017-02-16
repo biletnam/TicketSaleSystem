@@ -1,5 +1,6 @@
 package ru.tersoft.ticketsale.service.impl;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service("DialogService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class DialogServiceImpl implements DialogService {
     private final DialogRepository dialogRepository;
     private final AccountRepository accountRepository;

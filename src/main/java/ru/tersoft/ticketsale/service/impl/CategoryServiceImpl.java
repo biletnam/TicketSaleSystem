@@ -1,5 +1,6 @@
 package ru.tersoft.ticketsale.service.impl;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service("CategoryService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final AttractionRepository attractionRepository;

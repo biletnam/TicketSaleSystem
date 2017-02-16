@@ -1,6 +1,7 @@
 package ru.tersoft.ticketsale.service.impl;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service("AccountService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     @Resource(name = "MailService")

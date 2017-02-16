@@ -2,6 +2,7 @@ package ru.tersoft.ticketsale.service.impl;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service("AttractionService")
-@Transactional
+@Transactional(rollbackFor=LockAcquisitionException.class)
 public class AttractionServiceImpl implements AttractionService {
     private final AttractionRepository attractionRepository;
     private final CategoryRepository categoryRepository;
