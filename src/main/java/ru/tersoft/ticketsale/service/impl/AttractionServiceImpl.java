@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.tersoft.ticketsale.entity.Attraction;
 import ru.tersoft.ticketsale.entity.Category;
 import ru.tersoft.ticketsale.entity.Maintenance;
+import ru.tersoft.ticketsale.entity.Ticket;
 import ru.tersoft.ticketsale.repository.AttractionRepository;
 import ru.tersoft.ticketsale.repository.CategoryRepository;
 import ru.tersoft.ticketsale.repository.MaintenanceRepository;
@@ -23,6 +24,9 @@ import ru.tersoft.ticketsale.utils.ResponseFactory;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service("AttractionService")
@@ -83,10 +87,11 @@ public class AttractionServiceImpl implements AttractionService {
         attraction.setName(name);
         if(maintenanceid != null) {
             Maintenance maintenance = maintenanceRepository.findOne(UUID.fromString(maintenanceid));
-            if(maintenance != null)
+            if(maintenance != null) {
                 attraction.setMaintenance(maintenance);
-            else
+            } else {
                 return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND, "Maintenance with such id was not found");
+            }
         }
         if(image != null && !image.isEmpty()) {
             try {
@@ -112,6 +117,32 @@ public class AttractionServiceImpl implements AttractionService {
             attractionRepository.delete(id);
             return ResponseFactory.createResponse();
         }
+    }
+
+    public void markTickets(UUID attractionid, Maintenance maintenance, boolean broken) {
+        List<Ticket> tickets = ticketRepository.findByEnabled(true);
+        List<Ticket> changedTickets = new ArrayList<>();
+        for(Ticket ticket : tickets) {
+            if(ticket.getAttraction().getId().equals(attractionid)) {
+                Date visitDate = ticket.getOrder().getVisitdate();
+                Date startDate = maintenance.getStartdate();
+                Date endDate = maintenance.getEnddate();
+                if(endDate != null) {
+                    if ((visitDate.before(endDate) || visitDate.equals(endDate))
+                            && (visitDate.after(startDate) || visitDate.equals(startDate))) {
+                        ticket.setBrokenAttraction(broken);
+                        changedTickets.add(ticket);
+                    }
+                } else {
+                    if (visitDate.after(startDate) || visitDate.equals(startDate)) {
+                        ticket.setBrokenAttraction(broken);
+                        changedTickets.add(ticket);
+                    }
+                }
+            }
+        }
+        ticketRepository.save(changedTickets);
+        ticketRepository.flush();
     }
 
     public ResponseEntity<?> edit(UUID id, String name, String description, String cat, String price,
@@ -144,11 +175,13 @@ public class AttractionServiceImpl implements AttractionService {
             existingAttraction.setCategory(category);
         if(maintenanceid != null) {
             Maintenance maintenance = maintenanceRepository.findOne(UUID.fromString(maintenanceid));
-            if(maintenance != null)
+            if(maintenance != null) {
+                markTickets(existingAttraction.getId(), maintenance, true);
                 existingAttraction.setMaintenance(maintenance);
-            else
+            } else {
                 return ResponseFactory.createErrorResponse(HttpStatus.NOT_FOUND,
                         "Maintenance with such id was not found");
+            }
         }
         if(image != null && !image.isEmpty()) {
             deleteImage(existingAttraction.getId());

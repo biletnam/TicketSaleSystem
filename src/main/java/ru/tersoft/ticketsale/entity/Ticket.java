@@ -38,6 +38,9 @@ public class Ticket implements Serializable {
     @Column(name = "enabled")
     private Boolean enabled;
 
+    @Column(name = "broken")
+    private Boolean brokenAttraction;
+
     public UUID getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public class Ticket implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Boolean getBrokenAttraction() {
+        return brokenAttraction;
+    }
+
+    public void setBrokenAttraction(Boolean brokenAttraction) {
+        this.brokenAttraction = brokenAttraction;
     }
 }

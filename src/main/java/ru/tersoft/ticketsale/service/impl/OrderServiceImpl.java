@@ -130,6 +130,7 @@ public class OrderServiceImpl implements OrderService {
                 ticket.setOrder(cart);
                 ticket.setAttraction(existingAttraction);
                 ticket.setEnabled(false);
+                ticket.setBrokenAttraction(false);
                 tickets.size();
                 newTickets.add(ticketRepository.save(ticket));
             }

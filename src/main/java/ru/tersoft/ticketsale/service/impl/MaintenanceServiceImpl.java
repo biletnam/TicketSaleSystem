@@ -10,14 +10,19 @@ import ru.tersoft.ticketsale.entity.Attraction;
 import ru.tersoft.ticketsale.entity.Maintenance;
 import ru.tersoft.ticketsale.repository.AttractionRepository;
 import ru.tersoft.ticketsale.repository.MaintenanceRepository;
+import ru.tersoft.ticketsale.service.AttractionService;
 import ru.tersoft.ticketsale.service.MaintenanceService;
 import ru.tersoft.ticketsale.utils.ResponseFactory;
 
+import javax.annotation.Resource;
 import java.util.UUID;
 
 @Service("MaintenanceService")
 @Transactional(rollbackFor=LockAcquisitionException.class)
 public class MaintenanceServiceImpl implements MaintenanceService {
+    @Resource(name = "AttractionService")
+    private AttractionService attractionService;
+
     private final MaintenanceRepository maintenanceRepository;
     private final AttractionRepository attractionRepository;
 
@@ -44,6 +49,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         } else {
             Attraction attraction = attractionRepository.findByMaintenance(maintenanceRepository.findOne(id));
             attraction.setMaintenance(null);
+            attractionService.markTickets(attraction.getId(), maintenanceRepository.findOne(id), false);
             maintenanceRepository.delete(id);
             return ResponseFactory.createResponse();
         }
